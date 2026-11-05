@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Keepers Members</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<style>
+/* Members area: same look as the public pairing desk, plus account, registry, board */
+:root{
+  --bg:#f3f4f7; --paper:#ffffff; --ink:#1a2130; --ink2:#566074; --rule:#d5d9e2; --accent:#7a2633; --accentT:#f6e6e9; --unk:#eef0f4; --ok:#1f6b3a; --okT:#e3f3e8; --warn:#8a5a00; --warnT:#fdf3dc;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161e; --paper:#1a1f2a; --ink:#e6e9f0; --ink2:#9aa3b5; --rule:#2c3342; --accent:#e58a98; --accentT:#3a2127; --unk:#161a23; --ok:#7fd39a; --okT:#17301f; --warn:#f0c46a; --warnT:#332812; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161e; --paper:#1a1f2a; --ink:#e6e9f0; --ink2:#9aa3b5; --rule:#2c3342; --accent:#e58a98; --accentT:#3a2127; --unk:#161a23; --ok:#7fd39a; --okT:#17301f; --warn:#f0c46a; --warnT:#332812; color-scheme:dark}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.45}
+.wrap{max-width:1180px;margin:0 auto;padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px));padding-block:20px 40px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.wrap>*{min-width:0}
+.top{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:end;gap:10px 20px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(28px,5vw,42px);line-height:1.02;margin:2px 0 0;text-wrap:balance;overflow-wrap:anywhere}
+h1 em{font-style:normal;color:var(--accent)}
+h2{font-family:var(--display);font-size:22px;font-weight:600;margin:0 0 6px}
+.who{display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;font-size:13px;color:var(--ink2)}
+nav.tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule);overflow-x:auto}
+nav.tabs a{padding:9px 14px;font:500 14px var(--body);color:var(--ink2);text-decoration:none;border-bottom:2px solid transparent;white-space:nowrap}
+nav.tabs a.on{color:var(--ink);border-bottom-color:var(--accent)}
+.btn{border:1px solid var(--rule);background:var(--paper);color:var(--ink);border-radius:4px;padding:0 14px;min-height:35px;cursor:pointer;font:500 13.5px var(--body);display:inline-flex;align-items:center;justify-content:center;gap:6px;text-decoration:none}
+.btn:hover{border-color:var(--accent)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:#fff}
+:root[data-theme="dark"] .btn.pri{color:#1a1f2a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]) .btn.pri{color:#1a1f2a}}
+.btn.sm{min-height:28px;padding:0 10px;font-size:12.5px}
+.btn:disabled{opacity:.55;cursor:default}
+.linkbtn{background:none;border:0;padding:0;color:var(--ink2);font:inherit;text-decoration:underline;text-underline-offset:3px;cursor:pointer}
+.linkbtn:hover{color:var(--accent)}
+.field{width:100%;border:1px solid var(--rule);border-radius:4px;background:var(--paper);color:var(--ink);padding:8px 10px;font:14px var(--body)}
+textarea.field{min-height:120px;resize:vertical;line-height:1.5}
+label.f{display:grid;gap:4px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.card{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:20px;display:grid;gap:14px;min-width:0}
+.narrow{max-width:460px;width:100%;justify-self:center}
+.row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.msg{font-size:13.5px;border-radius:6px;padding:9px 12px;margin:0}
+.msg.ok{background:var(--okT);color:var(--ok)}
+.msg.err{background:var(--accentT);color:var(--accent)}
+.msg.info{background:var(--warnT);color:var(--warn)}
+.hint{font-size:13px;color:var(--ink2);margin:0;max-width:85ch}
+.seg{display:flex;border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.seg button{flex:1;border:0;background:var(--paper);color:var(--ink2);padding:8px;font:500 13px var(--body);cursor:pointer}
+.seg button.on{background:var(--accentT);color:var(--accent)}
+/* registry */
+.pick{display:flex;flex-wrap:wrap;gap:12px;align-items:end}
+.pick label{flex:1 1 220px;min-width:0}
+.list{display:grid;border:1px solid var(--rule);border-radius:6px;background:var(--paper);overflow:hidden}
+.list a{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 12px;padding:9px 12px;border-top:1px solid var(--rule);color:inherit;text-decoration:none}
+.list a:first-child{border-top:0}
+.list a:hover{background:var(--bg)}
+.list .t{font-weight:500;overflow-wrap:anywhere}
+.list .s{font-size:12.5px;color:var(--ink2);grid-column:1/-1;overflow-wrap:anywhere}
+.badge{font:500 10.5px var(--mono);letter-spacing:.05em;text-transform:uppercase;border:1px solid var(--rule);border-radius:999px;padding:1px 8px;white-space:nowrap;align-self:start;color:var(--ink2)}
+.badge.ok{border-color:transparent;background:var(--okT);color:var(--ok)}
+.badge.warn{border-color:transparent;background:var(--warnT);color:var(--warn)}
+.badge.staff{border-color:transparent;background:var(--accentT);color:var(--accent)}
+.stats{display:flex;flex-wrap:wrap;gap:10px 28px;border-block:1px solid var(--rule);padding-block:12px}
+.stat{display:grid;gap:2px}
+.stat b{font-family:var(--display);font-size:28px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.stat b.hl{color:var(--accent)}
+.stat span{font-size:12px;color:var(--ink2)}
+.frame{background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow-x:auto}
+.ped{display:grid;grid-template-columns:repeat(4,minmax(160px,1fr));grid-template-rows:repeat(16,minmax(30px,auto));gap:2px 8px;min-width:680px;padding:10px}
+.c{display:flex;flex-direction:column;justify-content:center;padding:2px 8px;border-left:3px solid var(--rule);min-width:0;border-radius:0 3px 3px 0;cursor:pointer}
+.c:hover{background:var(--bg)}
+.c .sd{font:9px var(--mono);letter-spacing:.1em;color:var(--ink2)}
+.c .nm{font-size:13px;font-weight:500;line-height:1.2;overflow-wrap:anywhere}
+.c .rg{font:10.5px var(--mono);color:var(--ink2)}
+.c.g1 .nm{font-size:15px;font-weight:600}
+.c.rep{border-left-color:var(--accent);background:var(--accentT)}
+.c.unk{background:var(--unk);border-left-style:dashed;cursor:default}
+.c.unk .nm{color:var(--ink2);font-style:italic;font-size:12px}
+.lnk{color:inherit;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px;cursor:pointer}
+.lnk:hover{text-decoration-color:var(--accent)}
+.rec{display:grid;grid-template-columns:minmax(0,240px) minmax(0,1fr);gap:16px 22px;align-items:start}
+.rec.nophoto{grid-template-columns:minmax(0,1fr)}
+@media (max-width:600px){.rec{grid-template-columns:minmax(0,1fr)}}
+.rec img{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:6px;border:1px solid var(--rule);display:block;background:var(--unk)}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px}
+.kv div{display:grid;gap:2px;min-width:0}
+.kv span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.kv b{font-weight:500;overflow-wrap:anywhere}
+.grp h3{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:10px 0 4px}
+.grp h3 i{font-style:normal;display:inline-block;border:1px solid var(--rule);border-radius:999px;padding:0 7px;margin-left:4px;color:var(--ink)}
+.names{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px}
+.sx{font:10px var(--mono);color:var(--ink2);margin-left:-11px;align-self:center}
+section.blk{display:grid;gap:6px;margin-top:8px}
+.notes{white-space:pre-wrap;font-size:14px;margin:0;overflow-wrap:anywhere}
+.admin{border:1px dashed var(--accent);border-radius:8px;padding:14px;display:grid;gap:8px}
+.admin h2{color:var(--accent);font-size:18px}
+/* board */
+.thr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:12px 14px;border-top:1px solid var(--rule);color:inherit;text-decoration:none}
+.thr:first-child{border-top:0}
+.thr:hover{background:var(--bg)}
+.thr .t{font-weight:600;overflow-wrap:anywhere}
+.thr .m{font-size:12.5px;color:var(--ink2);grid-column:1/-1}
+.thr .n{font:500 12px var(--mono);color:var(--ink2);text-align:right}
+.post{background:var(--paper);border:1px solid var(--rule);border-radius:8px;padding:14px 16px;display:grid;gap:8px;min-width:0}
+.post.first{border-left:3px solid var(--accent)}
+.post .hd{display:flex;flex-wrap:wrap;gap:4px 10px;align-items:center;font-size:12.5px;color:var(--ink2)}
+.post .hd b{color:var(--ink);font-weight:600}
+.post .bd{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;margin:0}
+.post .ac{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px}
+.rules{font-size:13px;color:var(--ink2);border-left:3px solid var(--rule);padding:4px 12px;margin:0}
+footer{font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:12px}
+.spin{display:inline-block;width:14px;height:14px;border:2px solid var(--rule);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+@media (prefers-reduced-motion:reduce){.spin{animation:none}}
+[hidden]{display:none!important}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <div>
+      <div class="eyebrow">Game Keepers · Members</div>
+      <h1 id="title">Members</h1>
+    </div>
+    <div class="who" id="who" hidden><span id="whoName"></span><button class="linkbtn" id="signOut" type="button">Sign out</button></div>
+  </header>
+  <nav class="tabs" id="nav" hidden>
+    <a href="#registry" data-tab="registry">Registry</a>
+    <a href="#pair" data-tab="pair">Pairing</a>
+    <a href="#board" data-tab="board">Board</a>
+    <a href="#account" data-tab="account">Account</a>
+  </nav>
+  <main id="out"><p class="hint"><span class="spin"></span> Loading…</p></main>
+  <footer>Game Keepers · operated by Trail Keepers LLC. Members-only area. COI is Wright's coefficient computed from every generation on record; where founders are cut off it is a floor. † parentage not yet confirmed. <a class="lnk" href="./">Free pairing desk</a></footer>
+</div>
+<datalist id="dlM"></datalist><datalist id="dlF"></datalist><datalist id="dlA"></datalist>
+
+<script>
+(() => {
+/* ---------- settings ---------- */
+const SUPABASE_URL = "https://ordsrwpmccpxxbnbxfcj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZHNyd3BtY2NweHhibmJ4ZmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0NzYyMjEsImV4cCI6MjEwOTA1MjIyMX0.pRC88Jpt-07-DijWIpAgl_G3Z8N5PfJi6-RV8OVqyT0";
+const PAGE_URL = location.origin + location.pathname;
+
+const $ = s => document.querySelector(s);
+const out = () => $("#out");
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (x, d = 2) => (100 * x).toFixed(d) + "%";
+const plain = s => String(s || "").replace(/"/g, "");
+const when = t => t ? new Date(t).toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"}) : "";
+const day = t => t ? new Date(t).toLocaleDateString(undefined, {dateStyle: "long"}) : "";
+const setTitle = h => { $("#title").innerHTML = h; };
+const msg = (kind, text) => `<p class="msg ${kind}" role="status">${esc(text)}</p>`;
+
+if (!window.supabase || !window.supabase.createClient){
+  out().innerHTML = msg("err", "The members area couldn't load its sign-in library. Check your connection and reload the page.");
+  return;
+}
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth: {persistSession: true, detectSessionInUrl: true}});
+
+/* ---------- state ---------- */
+let session = null, profile = null, dogs = null, dogsLoading = null;
+const names = new Map();               // user id -> {display_name, is_staff}
+let recovering = false;
+const qs = new URLSearchParams(location.search);
+const flag = qs.get("joined") ? "joined" : qs.get("canceled") ? "canceled" : null;
+if (flag){ try { history.replaceState(null, "", location.pathname + location.hash); } catch {} }
+
+const uid = () => session?.user?.id;
+const isStaff = () => profile && ["moderator", "super_admin"].includes(profile.role);
+const isAdmin = () => profile?.role === "super_admin";
+function isMember(p){
+  if (!p || p.banned) return false;
+  if (["moderator", "super_admin"].includes(p.role)) return true;
+  return ["active", "trialing"].includes(p.subscription_status) && (!p.current_period_end || new Date(p.current_period_end) > new Date());
+}
+
+/* ---------- auth ---------- */
+async function loadProfile(){
+  const {data, error} = await sb.from("profiles").select("*").eq("id", uid()).maybeSingle();
+  if (error) throw error;
+  profile = data;
+}
+async function refresh(){
+  const {data} = await sb.auth.getSession();
+  session = data.session;
+  if (recovering) return viewRecovery();
+  if (!session){ profile = null; showChrome(false); return viewSignIn(); }
+  try { await loadProfile(); } catch (e){ showChrome(false); out().innerHTML = msg("err", "Couldn't load your account: " + e.message); return; }
+  $("#who").hidden = false; $("#whoName").textContent = profile?.display_name || session.user.email;
+  if (!isMember(profile)){ showChrome(false, true); return viewJoin(); }
+  showChrome(true);
+  route();
+}
+function showChrome(member, signedIn = member){
+  $("#nav").hidden = !member;
+  $("#who").hidden = !signedIn && !member;
+}
+sb.auth.onAuthStateChange((event, s) => {
+  session = s;
+  if (event === "PASSWORD_RECOVERY"){ recovering = true; viewRecovery(); return; }
+  if (event === "SIGNED_IN" || event === "SIGNED_OUT" || event === "USER_UPDATED") setTimeout(refresh, 0);
+});
+$("#signOut").addEventListener("click", async () => { await sb.auth.signOut(); dogs = null; location.hash = ""; refresh(); });
+
+function viewSignIn(mode = "in", note = ""){
+  setTitle("Members");
+  const tabs = [["in", "Sign in"], ["up", "Create account"], ["reset", "Forgot password"]];
+  out().innerHTML = `<div class="card narrow">
+    <div class="seg" role="tablist">${tabs.map(([k, t]) => `<button type="button" data-mode="${k}" class="${k === mode ? "on" : ""}" role="tab" aria-selected="${k === mode}">${t}</button>`).join("")}</div>
+    ${note}
+    <form id="authForm" class="card" style="border:0;padding:0">
+      ${mode === "up" ? `<label class="f">Display name (shown on the board)<input class="field" name="dn" required maxlength="40" autocomplete="nickname"></label>` : ""}
+      <label class="f">Email<input class="field" type="email" name="em" required autocomplete="email"></label>
+      ${mode !== "reset" ? `<label class="f">Password<input class="field" type="password" name="pw" required minlength="8" autocomplete="${mode === "up" ? "new-password" : "current-password"}"></label>` : ""}
+      <button class="btn pri" type="submit">${mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Email me a reset link"}</button>
+      <div id="authMsg"></div>
+    </form>
+    <p class="hint">Membership is a yearly subscription. Create a free account first; you'll be able to join right after. Just looking for a litter's COI? The <a class="lnk" href="./">free pairing desk</a> needs no account.</p>
+  </div>`;
+  out().querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => viewSignIn(b.dataset.mode)));
+  $("#authForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, btn = f.querySelector("button"), m = $("#authMsg");
+    const em = f.em.value.trim(), pw = f.pw?.value;
+    btn.disabled = true; m.innerHTML = "";
+    try {
+      if (mode === "in"){
+        const {error} = await sb.auth.signInWithPassword({email: em, password: pw});
+        if (error) throw error;
+      } else if (mode === "up"){
+        const {data, error} = await sb.auth.signUp({email: em, password: pw, options: {data: {display_name: f.dn.value.trim()}, emailRedirectTo: PAGE_URL}});
+        if (error) throw error;
+        if (!data.session) m.innerHTML = msg("ok", "Check your email for a confirmation link, then come back and sign in.");
+      } else {
+        const {error} = await sb.auth.resetPasswordForEmail(em, {redirectTo: PAGE_URL});
+        if (error) throw error;
+        m.innerHTML = msg("ok", "If that email has an account, a reset link is on its way.");
+      }
+    } catch (err){ m.innerHTML = msg("err", err.message || String(err)); }
+    btn.disabled = false;
+  });
+}
+function viewRecovery(){
+  setTitle("Set a new password");
+  showChrome(false);
+  out().innerHTML = `<form class="card narrow" id="rec">
+    <label class="f">New password<input class="field" type="password" name="pw" minlength="8" required autocomplete="new-password"></label>
+    <button class="btn pri" type="submit">Save password</button><div id="recMsg"></div></form>`;
+  $("#rec").addEventListener("submit", async e => {
+    e.preventDefault();
+    const {error} = await sb.auth.updateUser({password: e.target.pw.value});
+    if (error){ $("#recMsg").innerHTML = msg("err", error.message); return; }
+    recovering = false; refresh();
+  });
+}
+
+/* ---------- join ---------- */
+let pollTimer = null;
+function viewJoin(){
+  setTitle("Join <em>Game Keepers</em>");
+  const p = profile || {};
+  const lapsed = p.subscription_status && !["none", "active", "trialing"].includes(p.subscription_status);
+  const banned = p.banned;
+  out().innerHTML = `<div class="card narrow">
+    ${flag === "joined" ? `<div id="joinWait">${msg("info", "Payment received. Switching on your membership…")}</div>` : ""}
+    ${flag === "canceled" ? msg("info", "Checkout was canceled. You haven't been charged.") : ""}
+    ${banned ? msg("err", "This account has been suspended. Contact Game Keepers if you think this is a mistake.") : `
+    <h2>Yearly membership</h2>
+    <ul class="hint" style="padding-left:18px;display:grid;gap:4px">
+      <li>The full registry: every dog, its pedigree, siblings and offspring</li>
+      <li>Pairing desk with litter COI across every generation on record</li>
+      <li>The members' discussion board</li>
+    </ul>
+    ${lapsed ? msg("info", "Your membership isn't active (" + p.subscription_status.replace("_", " ") + "). Renew below, or update your card under Manage billing.") : ""}
+    <div class="row"><button class="btn pri" id="joinBtn" type="button">Join — pay securely with Stripe</button>
+    ${p.stripe_customer_id ? `<button class="btn" id="portalBtn" type="button">Manage billing</button>` : ""}</div>
+    <div id="joinMsg"></div>
+    <p class="hint">Billed yearly. Cancel anytime from your account; access lasts until the end of the year you paid for.</p>`}
+  </div>`;
+  $("#joinBtn")?.addEventListener("click", () => goStripe("create-checkout", $("#joinBtn"), $("#joinMsg")));
+  $("#portalBtn")?.addEventListener("click", () => goStripe("billing-portal", $("#portalBtn"), $("#joinMsg")));
+  if (flag === "joined" && !pollTimer){
+    let tries = 0;
+    pollTimer = setInterval(async () => {
+      tries++;
+      try { await loadProfile(); } catch {}
+      if (isMember(profile)){ clearInterval(pollTimer); pollTimer = null; refresh(); }
+      else if (tries >= 15){ clearInterval(pollTimer); pollTimer = null; const w = $("#joinWait"); if (w) w.innerHTML = msg("info", "Your payment went through, but the membership hasn't switched on yet. Reload this page in a minute."); }
+    }, 3000);
+  }
+}
+async function goStripe(fn, btn, box){
+  btn.disabled = true; box.innerHTML = `<p class="hint"><span class="spin"></span> Opening Stripe…</p>`;
+  try {
+    const {data, error} = await sb.functions.invoke(fn, {body: {plan: "yearly"}});
+    if (error) throw error;
+    if (!data?.url) throw new Error(data?.error || "No link came back from Stripe.");
+    location.href = data.url;
+  } catch (e){
+    let m = e.message || String(e);
+    try { const j = await e.context?.json?.(); if (j?.error) m = j.error; } catch {}
+    box.innerHTML = msg("err", m); btn.disabled = false;
+  }
+}
+
+/* ---------- registry data ---------- */
+async function ensureDogs(){
+  if (dogs) return dogs;
+  if (!dogsLoading) dogsLoading = (async () => {
+    const rows = [];
+    for (let from = 0; ; from += 1000){
+      const {data, error} = await sb.from("dogs").select("id,name,reg_name,sex,sire_id,dam_id,status,note,source,program,photo_path").order("id").range(from, from + 999);
+      if (error) throw error;
+      rows.push(...data);
+      if (data.length < 1000) break;
+    }
+    const m = new Map(rows.map(r => [r.id, {id: r.id, name: r.name || r.id, regName: r.reg_name || r.name, sex: r.sex || "", sire: r.sire_id, dam: r.dam_id, status: r.status, plat: r.status !== "cert", note: r.note, source: r.source, photo: r.photo_path}]));
+    dogs = m;
+    const all = [...m.values()].sort((a, b) => a.name.localeCompare(b.name));
+    const opt = d => `<option value="${esc(d.name)}">${esc(plain(d.regName))}</option>`;
+    $("#dlM").innerHTML = all.filter(d => d.sex !== "F").map(opt).join("");
+    $("#dlF").innerHTML = all.filter(d => d.sex !== "M").map(opt).join("");
+    $("#dlA").innerHTML = all.map(opt).join("");
+    return m;
+  })().catch(e => { dogsLoading = null; throw e; });
+  return dogsLoading;
+}
+const nm = id => dogs.get(id)?.name || id;
+const par = id => { const d = dogs.get(id); return d ? [d.sire, d.dam] : [null, null]; };
+let depthC = new Map(), kinC = new Map();
+const reset = () => { depthC = new Map(); kinC = new Map(); };
+function depth(id, seen = new Set()){
+  if (!id || !dogs.has(id)) return -1; if (depthC.has(id)) return depthC.get(id);
+  if (seen.has(id)) return 0; seen.add(id);
+  const [s, d] = par(id); const v = 1 + Math.max(depth(s, seen), depth(d, seen)); depthC.set(id, v); return v;
+}
+function kin(a, b){
+  if (!a || !b || !dogs.has(a) || !dogs.has(b)) return 0; const k = a < b ? a + "|" + b : b + "|" + a; if (kinC.has(k)) return kinC.get(k);
+  let v; if (a === b){ const [s, d] = par(a); v = 0.5 * (1 + kin(s, d)); }
+  else { if (depth(a) < depth(b)) [a, b] = [b, a]; const [s, d] = par(a); v = 0.5 * (kin(s, b) + kin(d, b)); }
+  kinC.set(k, v); return v;
+}
+const F = id => { const [s, d] = par(id); return kin(s, d); };
+function findByName(s){ s = (s || "").trim().toLowerCase(); if (!s) return null; for (const d of dogs.values()) if (d.name.toLowerCase() === s || d.regName.toLowerCase() === s || plain(d.regName).toLowerCase() === s || d.id === s) return d.id; return undefined; }
+const badge = d => d.plat ? `<span class="badge warn">Not yet confirmed</span>` : `<span class="badge ok">Certificate</span>`;
+
+function cell(id, gen, row, span, role, counts){
+  const d = id && dogs.get(id), style = `grid-column:${gen};grid-row:${row} / span ${span}`;
+  if (!d) return `<div class="c unk" style="${style}"><span class="sd">${role}</span><span class="nm">Not on record</span></div>`;
+  const n = counts.get(id);
+  return `<div class="c g${gen}${n > 1 ? " rep" : ""}" style="${style}" data-dog="${esc(id)}" tabindex="0" role="button"><span class="sd">${role}</span><span class="nm">${esc(plain(d.regName))}${d.plat ? " †" : ""}${n > 1 ? ` <span class="rg">×${n}</span>` : ""}</span></div>`;
+}
+function pedigree(root){
+  const slots = [], counts = new Map();
+  (function walk(x, gen, row, span){
+    if (gen > 4) return; const [s, d] = par(x), h = span / 2;
+    for (const [id, r, role] of [[s, row, "SIRE"], [d, row + h, "DAM"]]){
+      slots.push([id, gen, r, h, role]); if (id) counts.set(id, (counts.get(id) || 0) + 1);
+      if (id) walk(id, gen + 1, r, h); else fill(gen + 1, r, h);
+    }
+  })(root, 1, 1, 16);
+  function fill(gen, row, span){ if (gen > 4) return; const h = span / 2; slots.push([null, gen, row, h, "SIRE"], [null, gen, row + h, h, "DAM"]); fill(gen + 1, row, h); fill(gen + 1, row + h, h); }
+  const reps = [...counts].filter(e => e[1] > 1).sort((a, b) => b[1] - a[1]);
+  return `<div class="frame"><div class="ped">${slots.map(s => cell(...s, counts)).join("")}</div></div>
+    <p class="hint">${reps.length ? "Repeated in four generations: " + reps.map(([a, n]) => `${esc(nm(a))} ×${n}`).join(", ") + ". Shaded names repeat." : "No dog repeats within four generations."} Tap a dog to open its record.</p>`;
+}
+
+/* ---------- router ---------- */
+function go(h){ if (location.hash !== h) location.hash = h; else route(); }
+window.addEventListener("hashchange", () => { if (session && isMember(profile)) route(); });
+async function route(){
+  const h = decodeURIComponent(location.hash.slice(1));
+  const [tab, ...rest] = h.split("/"); const arg = rest.join("/");
+  const t = tab || "registry";
+  document.querySelectorAll("#nav a").forEach(a => a.classList.toggle("on", a.dataset.tab === (t === "dog" ? "registry" : t === "thread" || t === "new" ? "board" : t)));
+  if (["registry", "dog", "pair", "new"].includes(t) || t === "thread"){
+    if (!dogs){ out().innerHTML = `<p class="hint"><span class="spin"></span> Loading the registry…</p>`; }
+    try { await ensureDogs(); } catch (e){ out().innerHTML = msg("err", "Couldn't load the registry: " + e.message); return; }
+  }
+  reset();
+  if (t === "registry") return viewRegistry();
+  if (t === "dog") return viewDog(arg);
+  if (t === "pair") return viewPair(arg);
+  if (t === "board") return viewBoard();
+  if (t === "new") return viewNewThread(arg);
+  if (t === "thread") return viewThread(arg);
+  if (t === "account") return viewAccount();
+  return viewRegistry();
+}
+document.addEventListener("click", e => {
+  const t = e.target.closest("[data-dog]");
+  if (t){ e.preventDefault(); go("#dog/" + encodeURIComponent(t.dataset.dog)); window.scrollTo({top: 0}); }
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter"){ const t = e.target.closest?.("[data-dog]"); if (t) t.click(); } });
+
+/* ---------- registry views ---------- */
+let regQuery = "", regSex = "all";
+function viewRegistry(){
+  setTitle("Registry");
+  out().innerHTML = `<div class="pick">
+      <label class="f">Search by name<input class="field" id="q" type="search" placeholder="e.g. Tab, Crenshaw, Jeep" value="${esc(regQuery)}"></label>
+      <div class="seg" style="flex:0 0 auto;min-width:240px" id="sexSeg">${[["all", "All"], ["M", "Males"], ["F", "Females"]].map(([k, l]) => `<button type="button" data-sex="${k}" class="${regSex === k ? "on" : ""}">${l}</button>`).join("")}</div>
+    </div>
+    <p class="hint" id="count"></p><div class="list" id="res"></div>`;
+  const draw = () => {
+    const q = regQuery.trim().toLowerCase();
+    let arr = [...dogs.values()].filter(d => (regSex === "all" || d.sex === regSex) && (!q || d.name.toLowerCase().includes(q) || d.regName.toLowerCase().includes(q)));
+    arr.sort((a, b) => a.name.localeCompare(b.name));
+    const shown = arr.slice(0, 200);
+    $("#count").textContent = `${arr.length.toLocaleString()} of ${dogs.size.toLocaleString()} dogs` + (arr.length > shown.length ? ` · showing the first ${shown.length}; type more to narrow it down` : "");
+    $("#res").innerHTML = shown.map(d => `<a href="#dog/${encodeURIComponent(d.id)}"><span class="t">${esc(plain(d.regName))}${d.sex ? ` <span class="sx" style="margin-left:4px">${d.sex}</span>` : ""}</span>${badge(d)}<span class="s">${d.sire || d.dam ? `${esc(d.sire ? plain(dogs.get(d.sire)?.regName || d.sire) : "?")} × ${esc(d.dam ? plain(dogs.get(d.dam)?.regName || d.dam) : "?")}` : "Parents not on record"}</span></a>`).join("") || `<p class="hint" style="padding:12px">No dogs match.</p>`;
+  };
+  $("#q").addEventListener("input", e => { regQuery = e.target.value; draw(); });
+  $("#sexSeg").querySelectorAll("button").forEach(b => b.addEventListener("click", () => { regSex = b.dataset.sex; $("#sexSeg").querySelectorAll("button").forEach(x => x.classList.toggle("on", x === b)); draw(); }));
+  draw();
+  $("#q").focus({preventScroll: true});
+}
+function viewDog(id){
+  const d = dogs.get(id);
+  if (!d){ setTitle("Not found"); out().innerHTML = `<p class="hint">That dog isn't in the registry. <a class="lnk" href="#registry">Back to the registry</a></p>`; return; }
+  setTitle(esc(plain(d.regName)));
+  const lk = x => x && dogs.has(x) ? `<a class="lnk" data-dog="${esc(x)}">${esc(plain(dogs.get(x).regName))}</a>${dogs.get(x).plat ? " †" : ""}` : "Not on record";
+  const all = [...dogs.values()].filter(x => x.id !== id).sort((a, b) => a.name.localeCompare(b.name));
+  const full = [], hs = [], hd = [];
+  for (const x of all){ const ss = d.sire && x.sire === d.sire, sd = d.dam && x.dam === d.dam; if (ss && sd) full.push(x); else if (ss) hs.push(x); else if (sd) hd.push(x); }
+  const kids = all.filter(x => x.sire === id || x.dam === id);
+  const list = (arr, empty) => arr.length ? `<div class="names">${arr.map(x => `<a class="lnk" data-dog="${esc(x.id)}">${esc(x.name)}</a>${x.sex ? `<span class="sx">${x.sex}</span>` : ""}`).join("")}</div>` : `<p class="hint">${empty}</p>`;
+  const grp = (t, arr, empty) => `<div class="grp"><h3>${t} <i>${arr.length}</i></h3>${list(arr, empty)}</div>`;
+  out().innerHTML = `<p class="hint"><a class="lnk" href="#registry">← Registry</a></p>
+    <div class="rec${d.photo ? "" : " nophoto"}">
+      ${d.photo ? `<img id="dogPhoto" alt="${esc(plain(d.regName))}">` : ""}
+      <div style="display:grid;gap:14px;min-width:0">
+        <div class="row">${badge(d)}</div>
+        <div class="stats"><div class="stat"><b class="hl">${d.sire || d.dam ? pct(F(id)) : "–"}</b><span>F (own COI)</span></div><div class="stat"><b>${d.sex === "M" ? "Male" : d.sex === "F" ? "Female" : "–"}</b><span>Sex</span></div><div class="stat"><b>${kids.length}</b><span>Offspring on record</span></div></div>
+        <div class="kv"><div><span>Sire</span><b>${lk(d.sire)}</b></div><div><span>Dam</span><b>${lk(d.dam)}</b></div><div><span>Short name</span><b>${esc(d.name)}</b></div></div>
+        ${d.note ? `<div class="kv"><div><span>Notes</span><p class="notes">${esc(d.note)}</p></div></div>` : ""}
+        ${d.source ? `<div class="kv"><div><span>Source</span><p class="notes" style="color:var(--ink2);font-size:13px">${esc(d.source)}</p></div></div>` : ""}
+        <div class="row"><a class="btn sm" href="#new/${encodeURIComponent(id)}">Discuss on the board</a>${d.sex !== "F" ? `<a class="btn sm" href="#pair/${encodeURIComponent(id)}~">Pair as sire</a>` : ""}${d.sex !== "M" ? `<a class="btn sm" href="#pair/~${encodeURIComponent(id)}">Pair as dam</a>` : ""}</div>
+      </div>
+    </div>
+    ${isAdmin() ? `<div class="admin" id="adminBox"><h2>Super admin</h2><p class="hint"><span class="spin"></span> Loading registration details…</p></div>` : ""}
+    <section class="blk"><h2>Pedigree</h2>${pedigree(id)}</section>
+    <section class="blk"><h2>Siblings on record</h2>${!d.sire && !d.dam ? '<p class="hint">No parents on record.</p>' :
+      grp("Full siblings", full, d.sire && d.dam ? "None recorded." : "Needs both parents on record.") +
+      grp(`Half siblings through the sire${d.sire ? ", " + esc(nm(d.sire)) : ""}`, hs, d.sire ? "None recorded." : "Sire not on record.") +
+      grp(`Half siblings through the dam${d.dam ? ", " + esc(nm(d.dam)) : ""}`, hd, d.dam ? "None recorded." : "Dam not on record.")}</section>
+    <section class="blk"><h2>Offspring on record</h2>${list(kids, "None recorded.")}</section>`;
+  if (d.photo) sb.storage.from("dog-photos").createSignedUrl(d.photo, 3600).then(({data}) => { const im = $("#dogPhoto"); if (im && data?.signedUrl) im.src = data.signedUrl; else if (im) im.remove(); });
+  if (isAdmin()) sb.from("dog_private").select("reg_no,full_note,full_source").eq("dog_id", id).maybeSingle().then(({data, error}) => {
+    const box = $("#adminBox"); if (!box) return;
+    box.innerHTML = `<h2>Super admin</h2>` + (error ? msg("err", error.message) : !data ? `<p class="hint">No private record for this dog.</p>` :
+      `<div class="kv"><div><span>Registration number</span><b style="font-family:var(--mono)">${esc(data.reg_no || "—")}</b></div></div>
+       ${data.full_note && data.full_note !== d.note ? `<div class="kv"><div><span>Full notes</span><p class="notes">${esc(data.full_note)}</p></div></div>` : ""}
+       ${data.full_source && data.full_source !== d.source ? `<div class="kv"><div><span>Full source</span><p class="notes" style="font-size:13px">${esc(data.full_source)}</p></div></div>` : ""}
+       <p class="hint">Only visible to super admins.</p>`);
+  });
+}
+function viewPair(arg){
+  let [s, dm] = (arg || "").split("~");
+  setTitle("Pairing");
+  out().innerHTML = `<div class="pick">
+      <label class="f">Sire<input id="pSire" class="field" list="dlM" placeholder="Pick a male" value="${esc(s && dogs.has(s) ? nm(s) : "")}"></label>
+      <label class="f">Dam<input id="pDam" class="field" list="dlF" placeholder="Pick a female" value="${esc(dm && dogs.has(dm) ? nm(dm) : "")}"></label>
+      <div><button class="btn" type="button" id="clearBtn">Clear</button></div>
+    </div><div id="pairOut"></div>`;
+  const draw = () => {
+    const box = $("#pairOut");
+    if (!(s && dogs.has(s) && dm && dogs.has(dm))){ box.innerHTML = `<p class="hint">Pick a sire and a dam to see the litter's COI and four-generation pedigree.</p>`; return; }
+    setTitle(`${esc(nm(s))} <em>× ${esc(nm(dm))}</em>`);
+    dogs.set("__pup__", {id: "__pup__", name: "litter", regName: "litter", sire: s, dam: dm}); reset();
+    box.innerHTML = `<div class="stats">
+        <div class="stat"><b class="hl">${pct(kin(s, dm))}</b><span>Litter COI</span></div>
+        <div class="stat"><b>${pct(F(s))}</b><span>F of ${esc(nm(s))}</span></div>
+        <div class="stat"><b>${pct(F(dm))}</b><span>F of ${esc(nm(dm))}</span></div>
+      </div>${pedigree("__pup__")}`;
+    dogs.delete("__pup__"); reset();
+  };
+  const pick = () => {
+    const a = findByName($("#pSire").value), b = findByName($("#pDam").value);
+    if (a !== undefined) s = a || ""; if (b !== undefined) dm = b || "";
+    try { history.replaceState(null, "", "#pair/" + encodeURIComponent(s || "") + "~" + encodeURIComponent(dm || "")); } catch {}
+    draw();
+  };
+  ["change", "input"].forEach(ev => { $("#pSire").addEventListener(ev, pick); $("#pDam").addEventListener(ev, pick); });
+  $("#clearBtn").addEventListener("click", () => { s = dm = ""; $("#pSire").value = $("#pDam").value = ""; setTitle("Pairing"); pick(); });
+  draw();
+}
+
+/* ---------- board ---------- */
+const RULES = `<p class="rules">Board rules: keep it to pedigrees, breeding and dog care. No fight records or anything about fighting, and no owners' addresses or phone numbers. Moderators remove posts that break these rules.</p>`;
+async function loadNames(ids){
+  const need = [...new Set(ids)].filter(i => i && !names.has(i));
+  if (!need.length) return;
+  const {data} = await sb.from("member_names").select("id,display_name,is_staff").in("id", need);
+  (data || []).forEach(r => names.set(r.id, r));
+}
+const who = id => { const n = names.get(id); return `<b>${esc(n?.display_name || "Member")}</b>${n?.is_staff ? ` <span class="badge staff">Staff</span>` : ""}`; };
+async function viewBoard(){
+  setTitle("Board");
+  out().innerHTML = `<div class="row" style="justify-content:space-between"><p class="hint">Members' discussion.</p><a class="btn pri" href="#new">Start a thread</a></div>${RULES}<div id="thr"><p class="hint"><span class="spin"></span> Loading threads…</p></div>`;
+  const {data, error} = await sb.from("threads").select("id,title,author_id,dog_id,pinned,locked,created_at,last_post_at,posts(count)").order("pinned", {ascending: false}).order("last_post_at", {ascending: false}).limit(200);
+  const box = $("#thr"); if (!box) return;
+  if (error){ box.innerHTML = msg("err", "Couldn't load the board: " + error.message); return; }
+  await loadNames(data.map(t => t.author_id));
+  box.innerHTML = data.length ? `<div class="list">${data.map(t => {
+    const n = t.posts?.[0]?.count ?? 0;
+    return `<a class="thr" href="#thread/${t.id}"><span class="t">${t.pinned ? "📌 " : ""}${t.locked ? "🔒 " : ""}${esc(t.title)}</span><span class="n">${n} ${n === 1 ? "reply" : "replies"}</span><span class="m">${esc(names.get(t.author_id)?.display_name || "Member")} · ${t.dog_id && dogs?.has(t.dog_id) ? esc(plain(dogs.get(t.dog_id).regName)) + " · " : ""}last activity ${when(t.last_post_at)}</span></a>`;
+  }).join("")}</div>` : `<p class="hint">No threads yet. Start the first one.</p>`;
+}
+function viewNewThread(dogId){
+  setTitle("New thread");
+  const d = dogId && dogs.get(dogId);
+  out().innerHTML = `<p class="hint"><a class="lnk" href="#board">← Board</a></p>${RULES}
+    <form class="card" id="nt">
+      <label class="f">Title<input class="field" name="title" required minlength="3" maxlength="200" value="${d ? esc(plain(d.regName)) : ""}"></label>
+      <label class="f">About a dog (optional)<input class="field" name="dog" list="dlA" placeholder="Pick a dog from the registry" value="${d ? esc(d.name) : ""}"></label>
+      <label class="f">Message<textarea class="field" name="body" required maxlength="20000"></textarea></label>
+      <div class="row"><button class="btn pri" type="submit">Post thread</button><a class="btn" href="#board">Cancel</a></div><div id="ntMsg"></div>
+    </form>`;
+  $("#nt").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, btn = f.querySelector("button[type=submit]");
+    const dogName = f.dog.value.trim(); let dog_id = null;
+    if (dogName){ dog_id = findByName(dogName); if (!dog_id){ $("#ntMsg").innerHTML = msg("err", "That dog isn't in the registry. Pick one from the list or leave it blank."); return; } }
+    btn.disabled = true;
+    const {data, error} = await sb.from("threads").insert({author_id: uid(), title: f.title.value.trim(), body: f.body.value.trim(), dog_id}).select("id").single();
+    if (error){ $("#ntMsg").innerHTML = msg("err", error.message); btn.disabled = false; return; }
+    go("#thread/" + data.id);
+  });
+}
+async function viewThread(id){
+  setTitle("Thread");
+  out().innerHTML = `<p class="hint"><span class="spin"></span> Loading…</p>`;
+  const [{data: t, error: e1}, {data: posts, error: e2}] = await Promise.all([
+    sb.from("threads").select("*").eq("id", id).maybeSingle(),
+    sb.from("posts").select("*").eq("thread_id", id).order("created_at")]);
+  if (e1 || e2){ out().innerHTML = msg("err", (e1 || e2).message); return; }
+  if (!t){ out().innerHTML = `<p class="hint">This thread was removed. <a class="lnk" href="#board">Back to the board</a></p>`; return; }
+  await loadNames([t.author_id, ...posts.map(p => p.author_id)]);
+  setTitle(esc(t.title));
+  const mine = a => a === uid();
+  const acts = (kind, p) => {
+    const a = [];
+    if (mine(p.author_id) && !(kind === "thread" && t.locked && !isStaff())) a.push(`<button class="linkbtn" data-act="edit-${kind}" data-id="${p.id}" type="button">Edit</button>`);
+    if (mine(p.author_id) || isStaff()) a.push(`<button class="linkbtn" data-act="del-${kind}" data-id="${p.id}" type="button">Delete</button>`);
+    if (kind === "thread" && isStaff()){ a.push(`<button class="linkbtn" data-act="pin" type="button">${t.pinned ? "Unpin" : "Pin"}</button>`, `<button class="linkbtn" data-act="lock" type="button">${t.locked ? "Unlock" : "Lock"}</button>`); }
+    return a.length ? `<div class="ac">${a.join("")}</div>` : "";
+  };
+  const block = (kind, p, first) => `<article class="post${first ? " first" : ""}" id="p-${p.id}">
+      <div class="hd">${who(p.author_id)}<span>${when(p.created_at)}${p.edited_at ? " · edited" : ""}</span></div>
+      <p class="bd">${esc(p.body)}</p>${acts(kind, p)}</article>`;
+  out().innerHTML = `<p class="hint"><a class="lnk" href="#board">← Board</a>${t.dog_id && dogs.has(t.dog_id) ? ` · About <a class="lnk" data-dog="${esc(t.dog_id)}">${esc(plain(dogs.get(t.dog_id).regName))}</a>` : ""}${t.pinned ? " · 📌 Pinned" : ""}${t.locked ? " · 🔒 Locked" : ""}</p>
+    ${block("thread", t, true)}
+    ${posts.map(p => block("post", p, false)).join("")}
+    ${t.locked ? `<p class="hint">This thread is locked. No new replies.</p>` : `<form class="card" id="rp"><label class="f">Reply<textarea class="field" name="body" required maxlength="20000"></textarea></label><div class="row"><button class="btn pri" type="submit">Post reply</button></div><div id="rpMsg"></div></form>`}
+    ${RULES}`;
+  $("#rp")?.addEventListener("submit", async e => {
+    e.preventDefault(); const btn = e.target.querySelector("button"); btn.disabled = true;
+    const {error} = await sb.from("posts").insert({thread_id: id, author_id: uid(), body: e.target.body.value.trim()});
+    if (error){ $("#rpMsg").innerHTML = msg("err", error.message); btn.disabled = false; return; }
+    viewThread(id);
+  });
+  out().querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", async () => {
+    const act = b.dataset.act, pid = b.dataset.id;
+    let res;
+    if (act === "pin") res = await sb.from("threads").update({pinned: !t.pinned}).eq("id", id);
+    else if (act === "lock") res = await sb.from("threads").update({locked: !t.locked}).eq("id", id);
+    else if (act === "del-thread"){ if (!confirm("Delete this whole thread and its replies?")) return; res = await sb.from("threads").delete().eq("id", id); if (!res.error) return go("#board"); }
+    else if (act === "del-post"){ if (!confirm("Delete this reply?")) return; res = await sb.from("posts").delete().eq("id", pid); }
+    else if (act.startsWith("edit-")) return editInPlace(act === "edit-thread" ? "threads" : "posts", pid, act === "edit-thread" ? t.body : posts.find(p => p.id === pid).body, () => viewThread(id));
+    if (res?.error) alertBox(res.error.message); else viewThread(id);
+  }));
+}
+function editInPlace(table, pid, body, done){
+  const art = $("#p-" + pid); if (!art) return;
+  const bd = art.querySelector(".bd"), ac = art.querySelector(".ac");
+  bd.outerHTML = `<form class="ed" style="display:grid;gap:8px"><textarea class="field" required maxlength="20000">${esc(body)}</textarea><div class="row"><button class="btn sm pri" type="submit">Save</button><button class="btn sm" type="button" data-x>Cancel</button></div></form>`;
+  if (ac) ac.hidden = true;
+  const f = art.querySelector("form.ed");
+  f.querySelector("[data-x]").addEventListener("click", done);
+  f.addEventListener("submit", async e => {
+    e.preventDefault();
+    const {error} = await sb.from(table).update({body: f.querySelector("textarea").value.trim()}).eq("id", pid);
+    if (error) alertBox(error.message); else done();
+  });
+}
+function alertBox(text){ const p = document.createElement("div"); p.innerHTML = msg("err", text); out().prepend(p); window.scrollTo({top: 0}); }
+
+/* ---------- account ---------- */
+function viewAccount(){
+  setTitle("Account");
+  const p = profile;
+  const status = p.role === "super_admin" ? "Super admin" : p.role === "moderator" ? "Moderator" : ({active: "Active", trialing: "Trial"}[p.subscription_status] || p.subscription_status);
+  out().innerHTML = `<div class="card narrow">
+      <div class="kv"><div><span>Email</span><b>${esc(session.user.email)}</b></div><div><span>Membership</span><b>${esc(status)}</b></div>
+      ${p.current_period_end ? `<div><span>${p.subscription_status === "canceled" ? "Access ends" : "Renews"}</span><b>${day(p.current_period_end)}</b></div>` : ""}</div>
+      <form id="dnForm" class="row" style="align-items:end"><label class="f" style="flex:1 1 200px">Display name<input class="field" name="dn" maxlength="40" required value="${esc(p.display_name)}"></label><button class="btn" type="submit">Save</button></form>
+      <div class="row">${p.stripe_customer_id ? `<button class="btn" id="portalBtn" type="button">Manage billing (card, cancel)</button>` : ""}<button class="btn" id="pwBtn" type="button">Change password</button></div>
+      <div id="acMsg"></div>
+    </div>`;
+  $("#dnForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const dn = e.target.dn.value.trim();
+    const {error} = await sb.from("profiles").update({display_name: dn}).eq("id", uid());
+    if (error){ $("#acMsg").innerHTML = msg("err", error.message); return; }
+    profile.display_name = dn; names.delete(uid()); $("#whoName").textContent = dn; $("#acMsg").innerHTML = msg("ok", "Saved.");
+  });
+  $("#portalBtn")?.addEventListener("click", () => goStripe("billing-portal", $("#portalBtn"), $("#acMsg")));
+  $("#pwBtn").addEventListener("click", async () => {
+    const {error} = await sb.auth.resetPasswordForEmail(session.user.email, {redirectTo: PAGE_URL});
+    $("#acMsg").innerHTML = error ? msg("err", error.message) : msg("ok", "We've emailed you a link to set a new password.");
+  });
+}
+
+refresh();
+})();
+</script>
+</body>
+</html>
