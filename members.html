@@ -1,0 +1,1281 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Game Keepers Members</title>
+<meta name="robots" content="noindex">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&family=Libre+Caslon+Text:ital,wght@0,400;0,700;1,400&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.49.4/dist/umd/supabase.min.js"></script>
+<style>
+/* Layout: registry office — dog index on the left, the selected dog's record card (with a 4-gen bracket) on the right; a pairing desk tab computes litter COI from the same records */
+:root{
+  --bg:#f3f4f7; --paper:#ffffff; --ink:#1a2130; --ink2:#566074; --rule:#d5d9e2; --accent:#7a2633; --accentT:#f6e6e9;
+  --ok:#2f6f4e; --okT:#e3f1e9; --warn:#8a5a0b; --warnT:#f7ecd9; --info:#1f5f8b; --infoT:#e3eef6; --unk:#eef0f4;
+  --display:"Barlow Condensed","Arial Narrow",system-ui,sans-serif;
+  --body:"IBM Plex Sans",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --mono:"IBM Plex Mono",ui-monospace,Menlo,Consolas,monospace;
+  --serif:"Libre Caslon Text",Georgia,"Times New Roman",serif;
+}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){
+  --bg:#12161e; --paper:#1a1f2a; --ink:#e6e9f0; --ink2:#9aa3b5; --rule:#2c3342; --accent:#e58a98; --accentT:#3a2127;
+  --ok:#7cc79e; --okT:#1a3026; --warn:#e0b060; --warnT:#352a17; --info:#7db8e3; --infoT:#1b2c3b; --unk:#161a23; color-scheme:dark}}
+:root[data-theme="dark"]{
+  --bg:#12161e; --paper:#1a1f2a; --ink:#e6e9f0; --ink2:#9aa3b5; --rule:#2c3342; --accent:#e58a98; --accentT:#3a2127;
+  --ok:#7cc79e; --okT:#1a3026; --warn:#e0b060; --warnT:#352a17; --info:#7db8e3; --infoT:#1b2c3b; --unk:#161a23; color-scheme:dark}
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--body);line-height:1.45}
+.wrap{max-width:1240px;margin:0 auto;padding-inline:16px;padding-block:20px 40px;display:grid;grid-template-columns:minmax(0,1fr);gap:18px}
+.wrap>*,.reg>*{min-width:0}
+header{display:flex;flex-wrap:wrap;align-items:flex-end;justify-content:space-between;gap:12px 24px}
+.eyebrow{font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+h1{font-family:var(--display);font-weight:700;font-size:clamp(30px,5vw,42px);line-height:1;margin:2px 0 0;text-wrap:balance}
+.stats{display:flex;flex-wrap:wrap;gap:8px 24px}
+.stat{display:grid;gap:1px}
+.stat b{font-family:var(--display);font-size:24px;font-weight:600;font-variant-numeric:tabular-nums;line-height:1}
+.stat span{font-size:12px;color:var(--ink2)}
+.tabs{display:flex;gap:4px;border-bottom:1px solid var(--rule)}
+.tab{font:600 15px var(--display);letter-spacing:.04em;text-transform:uppercase;background:none;border:0;border-bottom:3px solid transparent;color:var(--ink2);padding:8px 12px;cursor:pointer}
+.tab[aria-selected="true"]{color:var(--accent);border-bottom-color:var(--accent)}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{border:1px solid var(--rule);background:var(--paper);border-radius:4px;padding:6px 12px;cursor:pointer;font-size:13.5px;font-weight:500}
+.btn:hover{border-color:var(--ink2)}
+.btn.pri{background:var(--accent);border-color:var(--accent);color:var(--paper)}
+.btn.danger{color:var(--accent)}
+.btn.danger.arm{background:var(--accent);color:var(--paper);border-color:var(--accent)}
+.reg{display:grid;grid-template-columns:minmax(260px,330px) minmax(0,1fr);gap:18px;align-items:start}
+@media (max-width:820px){.reg{grid-template-columns:minmax(0,1fr)}}
+.panel{background:var(--paper);border:1px solid var(--rule);border-radius:6px;min-width:0}
+.idx{display:grid;grid-template-rows:auto auto minmax(0,1fr);max-height:min(78vh,900px)}
+@media (max-width:820px){.idx{max-height:340px}}
+.idx .top{padding:10px;display:grid;gap:8px;border-bottom:1px solid var(--rule)}
+.field{width:100%;border:1px solid var(--rule);border-radius:4px;background:var(--bg);padding:7px 9px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--rule);border-radius:999px;padding:2px 10px;font-size:12px;background:transparent;cursor:pointer;color:var(--ink2)}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--paper);border-color:var(--ink)}
+.cols{display:grid;grid-template-columns:minmax(0,1fr) auto;padding:6px 12px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);border-bottom:1px solid var(--rule)}
+.list{overflow-y:auto;margin:0;padding:0;list-style:none}
+.row{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:2px 10px;padding:7px 12px;border-bottom:1px solid var(--rule);cursor:pointer;border-left:3px solid transparent}
+.row:hover{background:var(--bg)}
+.row[aria-current="true"]{background:var(--accentT);border-left-color:var(--accent)}
+.row .nm{font-weight:500;font-size:14px;overflow-wrap:anywhere}
+.row .sub{font:11px var(--mono);color:var(--ink2);grid-column:1}
+.row .f{font:500 12.5px var(--mono);font-variant-numeric:tabular-nums;text-align:right;grid-row:1/span 2;grid-column:2;align-self:center}
+.flag{display:inline-block;font:600 9.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;padding:1px 6px;border-radius:3px;margin-left:6px;vertical-align:2px}
+.flag.cert{background:var(--okT);color:var(--ok)} .flag.check{background:var(--warnT);color:var(--warn)}
+.flag.platform{background:var(--infoT);color:var(--info)} .flag.gfk{background:var(--accentT);color:var(--accent)}
+.card{padding:16px 18px;display:grid;grid-template-columns:minmax(0,1fr);gap:16px}
+.card>*,.pair>*,.two>*{min-width:0}
+.card h2{font-family:var(--display);font-size:clamp(26px,4vw,34px);font-weight:700;line-height:1.05;margin:0;text-wrap:balance}
+.meta{display:flex;flex-wrap:wrap;gap:8px 22px;font-size:13px;color:var(--ink2)}
+.meta b{color:var(--ink);font-weight:600;font-family:var(--mono);font-size:13px}
+.kv{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px 18px;border-block:1px solid var(--rule);padding-block:10px}
+.kv div{display:grid;gap:1px;min-width:0}
+.kv span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.kv b{font-family:var(--display);font-size:22px;font-weight:600;font-variant-numeric:tabular-nums}
+.kv a,.lnk{color:var(--info);cursor:pointer;text-decoration:none;font-weight:500}
+.kv a:hover,.lnk:hover{text-decoration:underline}
+.note{border-left:3px solid var(--warn);background:var(--warnT);padding:8px 12px;font-size:13.5px;max-width:80ch}
+.note.cert{border-left-color:var(--ok);background:var(--okT)} .note.platform{border-left-color:var(--info);background:var(--infoT)}
+h3{font-family:var(--display);font-size:18px;font-weight:600;margin:0 0 6px;letter-spacing:.02em}
+h3.sm3{font-size:15.5px;color:var(--ink2)}
+.big.pb .stat b{font-size:24px}
+.frame{overflow-x:auto;border:1px solid var(--rule);border-radius:4px}
+.ped{display:grid;grid-template-columns:repeat(4,minmax(150px,1fr));grid-template-rows:repeat(16,minmax(28px,auto));gap:2px 8px;min-width:640px;padding:8px}
+.c{display:flex;flex-direction:column;justify-content:center;padding:2px 8px;border-left:3px solid var(--rule);min-width:0;cursor:pointer;border-radius:0 3px 3px 0}
+.c:hover{background:var(--bg)}
+.c .sd{font:9px var(--mono);letter-spacing:.1em;color:var(--ink2)}
+.c .nm{font-size:13px;font-weight:500;line-height:1.2;overflow-wrap:anywhere}
+.c .rg{font:10.5px var(--mono);color:var(--ink2)}
+.c.g1 .nm{font-size:15px;font-weight:600}
+.c.rep{border-left-color:var(--accent);background:var(--accentT)}
+.c.unk{background:var(--unk);border-left-style:dashed;cursor:default}
+.c.unk .nm{color:var(--ink2);font-style:italic;font-size:12px}
+.ped7{grid-template-columns:repeat(4,minmax(140px,1fr)) repeat(3,minmax(150px,1.15fr));grid-template-rows:repeat(128,minmax(16px,auto));gap:1px 6px;min-width:1080px}
+.ped7 .c{padding:1px 6px}
+.frame.f7{max-height:min(80vh,1100px);overflow:auto}
+.ped7 .c.g1,.ped7 .c.g2,.ped7 .c.g3,.ped7 .c.g4{justify-content:flex-start;padding-top:6px}
+.ped7 .c.g1>*,.ped7 .c.g2>*,.ped7 .c.g3>*,.ped7 .c.g4>*{position:sticky;top:6px}
+.ped7 .c.g1 .nm,.ped7 .c.g2 .nm,.ped7 .c.g3 .nm,.ped7 .c.g4 .nm{top:20px}
+.ped7 .c.g1 .rg:last-child,.ped7 .c.g2 .rg:last-child,.ped7 .c.g3 .rg:last-child,.ped7 .c.g4 .rg:last-child{top:38px}
+.ped7 .c.g6,.ped7 .c.g7{flex-direction:row;align-items:center;justify-content:flex-start;gap:6px;border-left-width:2px}
+.ped7 .c.g6 .sd,.ped7 .c.g7 .sd{display:none}
+.ped7 .c.g6 .nm,.ped7 .c.g7 .nm{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+.ped7 .c.g6 .rg,.ped7 .c.g7 .rg{font-size:9.5px;white-space:nowrap;flex:none}
+.ped7 .c.unk.g6 .nm,.ped7 .c.unk.g7 .nm{font-size:10px}
+.kids{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:13.5px}
+[hidden]{display:none!important}
+.sibs{display:grid;gap:10px}
+.recact{display:flex;gap:8px;flex-wrap:wrap}
+.recact a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
+.sibg h4{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin:0 0 4px}
+.sibg h4 .cnt{display:inline-block;background:var(--bg);border:1px solid var(--rule);border-radius:999px;padding:0 7px;margin-left:4px;color:var(--ink)}
+.sx{font:10px var(--mono);color:var(--ink2);margin-left:-11px;align-self:center}
+.empty{padding:28px 18px;color:var(--ink2);display:grid;gap:8px;max-width:60ch}
+.empty b{color:var(--ink);font-family:var(--display);font-size:22px}
+form.edit{display:grid;gap:12px;grid-template-columns:repeat(auto-fit,minmax(200px,1fr))}
+form.edit label{display:grid;gap:3px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);min-width:0}
+form.edit .wide{grid-column:1/-1}
+form.edit .act{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.msg{font-size:13px;color:var(--accent)}
+.pair{padding:16px 18px;display:grid;gap:16px}
+.pick{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px;align-items:end}
+.pick label{display:grid;gap:3px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.pick{display:flex;flex-wrap:wrap}
+.pick label{flex:1 1 220px;min-width:0}
+.pickact{display:flex;align-items:end}
+.pickact .btn{height:35px}
+@media (max-width:520px){.pickact{flex:1 1 100%}.pickact .btn{width:100%}}
+.big{display:flex;flex-wrap:wrap;gap:10px 28px;border-block:1px solid var(--rule);padding-block:12px}
+.big .stat b{font-size:30px}
+.big .stat b.hl{color:var(--accent)}
+article.cert{background:var(--paper);border:6px double var(--ink2);outline:1px solid var(--rule);outline-offset:6px;margin:8px;padding:clamp(18px,4vw,44px) clamp(16px,5vw,56px);display:grid;gap:14px;justify-items:center;font-family:var(--serif);color:var(--ink)}
+article.cert>*{width:100%;max-width:72ch}
+.cert-h{text-align:center;display:grid;gap:4px;border-bottom:1px solid var(--rule);padding-bottom:12px}
+.cert-h .eyebrow{letter-spacing:.18em}
+.cert-h h2{font-family:var(--serif);font-weight:400;font-size:clamp(32px,6vw,52px);line-height:1;margin:0;letter-spacing:.01em}
+.cert-subj{font-family:var(--serif);font-size:clamp(20px,3vw,26px);font-weight:700;text-align:center;margin:4px 0 0;display:grid;gap:2px}
+.cert-subj span{font:500 11px var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--ink2)}
+article.cert p{margin:0;font-size:16px;line-height:1.65;text-indent:2em;text-wrap:pretty}
+article.cert .lnk{color:inherit;text-decoration:underline;text-decoration-color:var(--rule);text-underline-offset:3px}
+article.cert .lnk:hover{text-decoration-color:var(--accent)}
+.cert-f{border-top:1px solid var(--rule);padding-top:12px;display:grid;gap:8px}
+article.cert .cert-f p{text-indent:0}
+.cert-lh{font-style:italic}
+article.cert.sheet>*{max-width:none}
+article.cert.sheet>.cert-h{width:auto;justify-self:center;padding-inline:24px}
+.cert-h h2.sm{font-size:clamp(22px,3.6vw,32px);line-height:1.1}
+article.cert h4{font-family:var(--serif);font-size:18px;font-weight:700;margin:6px 0 -6px}
+.tw{overflow-x:auto;border:1px solid var(--rule)}
+table.pct{min-width:720px;font-family:var(--body);font-size:12.5px;border-collapse:collapse}
+table.pct th,table.pct td{border:1px solid var(--rule);padding:4px 6px}
+table.pct th{font:500 10px var(--mono);letter-spacing:.05em;text-transform:uppercase;color:var(--ink2);background:var(--bg)}
+table.pct th.cg{text-align:center}
+table.pct td.n,table.pct th.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums;white-space:nowrap}
+table.pct td.z{color:var(--ink2);opacity:.55}
+table.pct td.t{font-weight:600;background:var(--bg)}
+table.pct td:first-child{max-width:260px}
+.cert-bl{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:4px 18px;font-size:15.5px}
+.cert-sig{font-size:13.5px!important;color:var(--ink2);line-height:1.5!important}
+.hnotes{display:grid;gap:6px}
+.hnotes ul{list-style:none;margin:0;padding:0;border-top:1px solid var(--rule)}
+.hrow{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;padding:8px 0;border-bottom:1px solid var(--rule)}
+.hrow>div{min-width:0}
+.hrow form{flex:1}
+.pubbar{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:8px 16px;margin-bottom:6px}
+.pubbar h3{margin:0}
+.pubact{display:flex;flex-wrap:wrap;gap:8px}
+.pubact a.btn{text-decoration:none;color:inherit;display:inline-flex;align-items:center}
+.pubmsg{display:grid;gap:4px;font-size:13px;margin-bottom:8px;max-width:80ch}
+.head{display:grid;grid-template-columns:minmax(0,220px) minmax(0,1fr);gap:16px 20px;align-items:start}
+@media (max-width:560px){.head{grid-template-columns:minmax(0,1fr)}}
+.headtxt{min-width:0;display:grid;gap:4px;align-content:start}
+.photo{margin:0;display:grid;gap:8px;min-width:0}
+.photo img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:5px;border:1px solid var(--rule);background:var(--unk);display:block;max-width:100%}
+.photo .ph{display:none}
+.photo.none .ph{display:grid;place-items:center;aspect-ratio:4/3;max-width:100%;border:1px dashed var(--rule);border-radius:5px;background:var(--unk);color:var(--ink2);font:500 11px var(--mono);letter-spacing:.08em;text-transform:uppercase}
+.photo figcaption{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
+.thumb{width:22px;height:22px;border-radius:50%;object-fit:cover;vertical-align:-6px;margin-right:7px;border:1px solid var(--rule)}
+.seg{display:inline-flex;border:1px solid var(--rule);border-radius:5px;overflow-x:auto;max-width:100%;justify-self:start;scrollbar-width:thin}
+.seg button{white-space:nowrap;flex:none}
+@media (max-width:560px){.seg button{padding:6px 10px;font-size:13px}}
+.seg button{border:0;background:transparent;padding:6px 14px;font:600 14px var(--display);letter-spacing:.04em;text-transform:uppercase;color:var(--ink2);cursor:pointer}
+.seg button+button{border-left:1px solid var(--rule)}
+.seg button[aria-selected="true"]{background:var(--ink);color:var(--paper)}
+.two{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:20px}
+.two>section{min-width:0}
+table{width:100%;border-collapse:collapse;font-size:13.5px}
+th,td{text-align:left;padding:6px 8px;border-bottom:1px solid var(--rule)}
+th{font:500 10.5px var(--mono);letter-spacing:.06em;text-transform:uppercase;color:var(--ink2)}
+td.n{text-align:right;font-family:var(--mono);font-variant-numeric:tabular-nums}
+.bar{height:6px;background:var(--rule);border-radius:3px;overflow:hidden;min-width:60px}
+.bar i{display:block;height:100%;background:var(--accent)}
+.hint{font-size:12.5px;color:var(--ink2);margin:0;max-width:80ch}
+footer{font-size:12px;color:var(--ink2);border-top:1px solid var(--rule);padding-top:12px}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+
+.tabs{overflow-x:auto;scrollbar-width:thin}
+.tab{white-space:nowrap;flex:none}
+@media (max-width:420px){.tab{padding:8px 9px;font-size:14px}}
+.who{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:center;font-size:13px;color:var(--ink2)}
+.hdr{display:grid;gap:10px;justify-items:end}
+@media (max-width:640px){.hdr{justify-items:start}}
+.linkbtn{background:none;border:0;padding:0;color:var(--info);font:inherit;cursor:pointer}
+.linkbtn:hover{text-decoration:underline}
+.flag.member{background:var(--unk);color:var(--ink2);border:1px solid var(--rule)}
+.gate{max-width:480px;width:100%;justify-self:center;padding:18px;display:grid;gap:14px}
+.gate form{display:grid;gap:12px}
+.gate label,.bx label.f{display:grid;gap:3px;font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.gate ul{margin:0;padding-left:18px;display:grid;gap:4px;font-size:13.5px}
+.gate h2,.bx h2{font-family:var(--display);font-size:26px;font-weight:700;margin:0}
+.mm{font-size:13.5px;border-radius:4px;padding:8px 12px;margin:0}
+.mm.ok{background:var(--okT);color:var(--ok)} .mm.err{background:var(--accentT);color:var(--accent)} .mm.info{background:var(--warnT);color:var(--warn)}
+.bx{padding:16px 18px;display:grid;gap:14px}
+.bx form{display:grid;gap:12px}
+.bx textarea.field{min-height:120px;resize:vertical}
+.bbar{display:flex;flex-wrap:wrap;gap:8px 12px;align-items:center;justify-content:space-between}
+.tlist{border:1px solid var(--rule);border-radius:6px;overflow:hidden}
+.thr{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:3px 12px;padding:10px 14px;border-bottom:1px solid var(--rule);color:inherit;text-decoration:none}
+.thr:last-child{border-bottom:0}
+.thr:hover{background:var(--bg)}
+.thr .t{font-weight:600;overflow-wrap:anywhere}
+.thr .m{font-size:12.5px;color:var(--ink2);grid-column:1/-1}
+.thr .n{font:500 12px var(--mono);color:var(--ink2)}
+.post{border:1px solid var(--rule);border-radius:6px;padding:12px 14px;display:grid;gap:8px;min-width:0}
+.post.first{border-left:3px solid var(--accent)}
+.post .hd{display:flex;flex-wrap:wrap;gap:4px 10px;font-size:12.5px;color:var(--ink2)}
+.post .hd b{color:var(--ink)}
+.post .bd{white-space:pre-wrap;overflow-wrap:anywhere;font-size:14.5px;margin:0}
+.post .ac{display:flex;flex-wrap:wrap;gap:12px;font-size:12.5px}
+.rules{font-size:13px;color:var(--ink2);border-left:3px solid var(--rule);padding:4px 12px;margin:0}
+.acct{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px 18px}
+.acct div{display:grid;gap:2px}
+.acct span{font:500 10.5px var(--mono);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2)}
+.acct b{font-weight:500;overflow-wrap:anywhere}
+.spin{display:inline-block;width:13px;height:13px;border:2px solid var(--rule);border-top-color:var(--accent);border-radius:50%;animation:sp .8s linear infinite;vertical-align:-2px}
+@keyframes sp{to{transform:rotate(360deg)}}
+
+html,body{margin:0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<header>
+  <div>
+    <div class="eyebrow">Game Keepers · Members</div>
+    <h1>Game Dog Registry</h1>
+  </div>
+  <div class="hdr">
+    <div class="who" id="who" hidden><span id="whoName"></span><button class="linkbtn" id="signOut" type="button">Sign out</button></div>
+    <div class="stats" id="stats" hidden>
+      <div class="stat"><b id="sDogs">–</b><span>dogs on record</span></div>
+      <div class="stat"><b id="sReg">–</b><span>certificate-confirmed</span></div>
+      <div class="stat"><b id="sChk">–</b><span>not yet confirmed</span></div>
+    </div>
+  </div>
+</header>
+
+<div id="gate" class="panel gate"><p class="hint"><span class="spin"></span> Loading…</p></div>
+
+<div id="app" hidden style="display:grid;gap:18px;min-width:0">
+<div class="tabs" role="tablist">
+  <button class="tab" role="tab" id="tabReg" aria-selected="true">Registry</button>
+  <button class="tab" role="tab" id="tabPair" aria-selected="false">Pairing desk</button>
+  <button class="tab" role="tab" id="tabBoard" aria-selected="false">Board</button>
+  <button class="tab" role="tab" id="tabAcct" aria-selected="false">Account</button>
+</div>
+
+<div id="viewReg" class="reg">
+  <aside class="panel idx">
+    <div class="top">
+      <input id="q" class="field" type="search" placeholder="Search by name" aria-label="Search dogs">
+      <div class="chips" id="filters">
+        <button class="chip" data-f="all" aria-pressed="true">All</button>
+        <button class="chip" data-f="cert" aria-pressed="false">Certificate</button>
+        <button class="chip" data-f="check" aria-pressed="false">Not confirmed</button>
+        <button class="chip" data-f="M" aria-pressed="false">Males</button>
+        <button class="chip" data-f="F" aria-pressed="false">Females</button>
+        <button class="chip" data-f="mine" aria-pressed="false">Added by me</button>
+      </div>
+      <button class="btn" id="addBtn">Add a dog</button>
+    </div>
+    <div class="cols"><span>Dog</span><span>F (own COI)</span></div>
+    <ul class="list" id="list"></ul>
+  </aside>
+  <main class="panel" id="detail">
+    <div class="empty"><b>Loading the registry…</b><span>Fetching every dog on record. This takes a few seconds the first time.</span></div>
+  </main>
+</div>
+
+<div id="viewPair" class="panel pair" hidden>
+  <div class="pick">
+    <label for="pSire">Sire<input id="pSire" class="field" list="dlM" placeholder="Pick a male"></label>
+    <label for="pDam">Dam<input id="pDam" class="field" list="dlF" placeholder="Pick a female"></label>
+    <div class="pickact"><button class="btn" type="button" id="pairClear">Clear</button></div>
+  </div>
+  <p class="hint">Litter COI is Wright's coefficient computed from every record in the registry (kinship of sire and dam, tabular NRM method). Where founders are truncated it is a floor, not the true value.</p>
+  <div id="pairOut"></div>
+</div>
+
+<div id="viewBoard" class="panel bx" hidden></div>
+<div id="viewAcct" class="panel bx" hidden></div>
+</div>
+
+<datalist id="dlAll"></datalist><datalist id="dlM"></datalist><datalist id="dlF"></datalist>
+<footer>Game Keepers · operated by Trail Keepers LLC. Members-only area. ADBA certificates take precedence over other sources; dogs marked Unconfirmed or Member have not yet been checked against a certificate. F and COI are computed from every generation on record. <a class="lnk" href="./">Free pairing desk</a></footer>
+</div>
+<script>
+(() => {
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));
+const pct = (x, d=2) => (100*x).toFixed(d) + "%";
+const PUBLIC_URL ="https://gkdogs.github.io/gkdr.github.io/";
+let dogs = new Map(), canWrite = true, sel = null, filt = "all", editing = false, pairView = "ped", cardGen = 4, assetsNs = null;
+
+/* ---------- genetics: Wright tabular NRM ---------- */
+let depthC, kinC;
+function reset(){ depthC = new Map(); kinC = new Map(); }
+reset();
+function par(id){ const d = dogs.get(id); return d ? [d.sire || null, d.dam || null] : [null, null]; }
+function depth(id, seen = new Set()){
+  if (!id || !dogs.has(id)) return -1;
+  if (depthC.has(id)) return depthC.get(id);
+  if (seen.has(id)) return 0;            // loop guard for a bad edit
+  seen.add(id);
+  const [s, d] = par(id);
+  const v = 1 + Math.max(depth(s, seen), depth(d, seen));
+  depthC.set(id, v); return v;
+}
+function kin(a, b){
+  if (!a || !b) return 0;
+  const k = a < b ? a + "|" + b : b + "|" + a;
+  if (kinC.has(k)) return kinC.get(k);
+  let v;
+  if (a === b){ const [s, d] = par(a); v = 0.5 * (1 + kin(s, d)); }
+  else {
+    if (depth(a) < depth(b)) [a, b] = [b, a];
+    const [s, d] = par(a); v = 0.5 * (kin(s, b) + kin(d, b));
+  }
+  kinC.set(k, v); return v;
+}
+const F = id => { const [s, d] = par(id); return kin(s, d); };
+function blood(id, anc, memo = new Map()){
+  if (!id) return 0; if (id === anc) return 1;
+  if (memo.has(id)) return memo.get(id);
+  const [s, d] = par(id); const v = 0.5 * (blood(s, anc, memo) + blood(d, anc, memo));
+  memo.set(id, v); return v;
+}
+function ancestors(id, out = new Set()){
+  for (const p of par(id)) if (p && !out.has(p)){ out.add(p); ancestors(p, out); }
+  return out;
+}
+/* Wright path partition of kin(a,b) by common ancestor */
+function* paths(x, p = []){
+  const q = [...p, x]; yield q;
+  if (q.length > 14) return;
+  for (const y of par(x)) if (y) yield* paths(y, q);
+}
+function partition(a, b){
+  /* Wright's COI split by common ancestor. Two gene lineages climb from the sire and the dam, always
+     stepping the younger dog first; where both reach the same dog X they coalesce there, adding
+     ½(1+F_X). This gives exactly Wright's path-count figures, in time linear in the dog pairs visited. */
+  const out = new Map();
+  if (!a || !b || !dogs.has(a) || !dogs.has(b)) return out;
+  const key = (x, y) => x < y ? x + "|" + y : y + "|" + x;
+  const prio = (x, y) => { const p = depth(x), q = depth(y); return Math.max(p, q) * 4096 + Math.min(p, q); };
+  const mass = new Map(), heap = [];
+  const push = (x, y, m) => {
+    const k = key(x, y);
+    if (mass.has(k)){ mass.get(k).m += m; return; }
+    const e = {x, y, m, p: prio(x, y)}; mass.set(k, e); heap.push(e);
+    let i = heap.length - 1;
+    while (i){ const j = (i - 1) >> 1; if (heap[j].p >= e.p) break; heap[i] = heap[j]; i = j; } heap[i] = e;
+  };
+  const pop = () => {
+    const top = heap[0], last = heap.pop();
+    if (heap.length){
+      let i = 0; const n = heap.length;
+      for (;;){ let c = 2 * i + 1; if (c >= n) break; if (c + 1 < n && heap[c + 1].p > heap[c].p) c++; if (heap[c].p <= last.p) break; heap[i] = heap[c]; i = c; }
+      heap[i] = last;
+    }
+    mass.delete(key(top.x, top.y)); return top;
+  };
+  push(a, b, 1);
+  while (heap.length){
+    const {x: x0, y: y0, m} = pop();
+    if (x0 === y0){ out.set(x0, (out.get(x0) || 0) + m * 0.5 * (1 + F(x0))); continue; }
+    const [x, y] = depth(x0) >= depth(y0) ? [x0, y0] : [y0, x0];
+    for (const p of par(x)) if (p && dogs.has(p)) push(p, y, m / 2);
+  }
+  for (const [k, v] of out) if (v < 1e-12) out.delete(k);
+  return out;
+}
+const isAncestor = (anc, id) => ancestors(id).has(anc);
+
+/* ---------- helpers ---------- */
+const nm = id => dogs.get(id)?.name || id;
+const flags = d => d.status === "member" ? '<span class="flag member">Member</span>' : d.status === "check" ? '<span class="flag check">Confirm</span>' : d.status === "platform" ? '<span class="flag platform">Unconfirmed</span>' : "";
+const plain = s => String(s || "").replace(/"/g, "");
+const full = id => plain(dogs.get(id)?.regName || nm(id));
+const sortKey = d => { const k = d.name.replace(/^[^A-Za-z0-9]+/, ""); return (/^[A-Za-z0-9]/.test(d.name) ? "0" : "1") + k.toLowerCase(); };
+let sortedC = null, sortedN = -1;
+function sorted(){ if (sortedC && sortedN === dogs.size && !dogs.has("__pup__")) return sortedC; const a = [...dogs.values()].filter(d => d.id !== "__pup__").sort((x, y) => sortKey(x).localeCompare(sortKey(y))); if (!dogs.has("__pup__")){ sortedC = a; sortedN = dogs.size; } return a; }
+function offspring(id){ return sorted().filter(d => d.sire === id || d.dam === id); }
+function siblings(d){
+  const out = {full: [], sire: [], dam: []};
+  if (!d.sire && !d.dam) return out;
+  for (const x of sorted()){
+    if (x.id === d.id || x.id === "__pup__") continue;
+    const ss = d.sire && x.sire === d.sire, sd = d.dam && x.dam === d.dam;
+    if (ss && sd) out.full.push(x); else if (ss) out.sire.push(x); else if (sd) out.dam.push(x);
+  }
+  return out;
+}
+function findByName(s){
+  s = (s || "").trim().toLowerCase(); if (!s) return null;
+  if (dogs.has(s)) return s;
+  for (const d of dogs.values()) if (plain(d.regName).toLowerCase() === s || d.regName.toLowerCase() === s) return d.id;
+  for (const d of dogs.values()) if (d.name.toLowerCase() === s) return d.id;
+  return undefined;
+}
+const slug = s => s.toLowerCase().replace(/'/g, "").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "").slice(0, 120);
+
+/* ---------- index ---------- */
+function renderStats(){
+  const all = [...dogs.values()];
+  $("#sDogs").textContent = all.length.toLocaleString();
+  $("#sReg").textContent = all.filter(d => d.status === "cert").length.toLocaleString();
+  $("#sChk").textContent = all.filter(d => d.status !== "cert").length.toLocaleString();
+}
+function renderList(){
+  const q = $("#q").value.trim().toLowerCase();
+  const rows = sorted().filter(d => {
+    if (filt === "cert" && d.status !== "cert") return false;
+    if (filt === "check" && d.status === "cert") return false;
+    if (filt === "mine" && d.by !== uid()) return false;
+    if ((filt === "M" || filt === "F") && d.sex !== filt) return false;
+    return !q || d.name.toLowerCase().includes(q) || d.regName.toLowerCase().includes(q) || (d.reg || "").toLowerCase().includes(q);
+  });
+  const ul = $("#list"), shown = rows.slice(0, 300);
+  ul.innerHTML = (rows.length ? shown.map(d => {
+    const hasP = d.sire || d.dam;
+    return `<li class="row" data-id="${esc(d.id)}" tabindex="0" ${d.id === sel ? 'aria-current="true"' : ""}>
+      <span class="nm">${d.photo && PH[d.photo] ? `<img class="thumb" src="${esc(PH[d.photo])}" alt="" loading="lazy" onerror="this.remove()">` : ""}${esc(d.name)}${flags(d)}</span>
+      <span class="f">${hasP ? pct(F(d.id), 1) : "–"}</span>
+      <span class="sub">${esc([isAdmin() ? (d.reg || "no reg. no.") : (plain(d.regName) !== d.name ? plain(d.regName) : ""), d.sex === "M" ? "male" : d.sex === "F" ? "female" : ""].filter(Boolean).join(" · "))}</span></li>`;
+  }).join("") : `<li class="empty">No dogs match.</li>`) + (rows.length > shown.length ? `<li class="empty">Showing ${shown.length} of ${rows.length.toLocaleString()} dogs. Type more of a name to narrow the list.</li>` : "");
+}
+function renderDatalists(){
+  const opt = d => `<option value="${esc(plain(d.regName))}">${esc(d.name)}${d.reg ? " · " + esc(d.reg) : ""}</option>`;
+  const all = sorted();
+  $("#dlAll").innerHTML = all.map(opt).join("");
+  $("#dlM").innerHTML = all.filter(d => d.sex !== "F").map(opt).join("");
+  $("#dlF").innerHTML = all.filter(d => d.sex !== "M").map(opt).join("");
+}
+
+/* ---------- record card ---------- */
+function pedCell(id, gen, row, span, role, counts){
+  const d = id && dogs.get(id);
+  const style = `grid-column:${gen};grid-row:${row} / span ${span}`;
+  if (!d) return `<div class="c unk g${gen}" style="${style}"><span class="sd">${role}</span><span class="nm">${id ? esc(id) : "Not on record"}</span></div>`;
+  const rep = counts.get(id) > 1 ? " rep" : "";
+  return `<div class="c g${gen}${rep}" style="${style}" data-id="${esc(id)}" tabindex="0" title="${esc(d.regName || d.name)}${d.reg ? " · " + esc(d.reg) : ""}"><span class="sd">${role}</span><span class="nm">${esc(d.name)}${counts.get(id) > 1 ? ` <span class="rg">×${counts.get(id)}</span>` : ""}</span><span class="rg">${esc(d.reg)}</span></div>`;
+}
+function pedigree(id, G = 4){
+  const slots = []; const counts = new Map();
+  (function walk(x, gen, row, span){
+    if (gen > G) return;
+    const [s, d] = par(x); const h = span / 2;
+    slots.push([s, gen, row, h, "SIRE"], [d, gen, row + h, h, "DAM"]);
+    if (s) counts.set(s, (counts.get(s) || 0) + 1);
+    if (d) counts.set(d, (counts.get(d) || 0) + 1);
+    if (s) walk(s, gen + 1, row, h); else if (gen < G) fill(gen + 1, row, h);
+    if (d) walk(d, gen + 1, row + h, h); else if (gen < G) fill(gen + 1, row + h, h);
+  })(id, 1, 1, 2 ** G);
+  function fill(gen, row, span){ if (gen > G) return; const h = span/2; slots.push([null, gen, row, h, "SIRE"], [null, gen, row + h, h, "DAM"]); fill(gen+1, row, h); fill(gen+1, row+h, h); }
+  return `<div class="frame${G > 4 ? " f7" : ""}"><div class="ped${G > 4 ? " ped7" : ""}">${slots.map(s => pedCell(s[0], s[1], s[2], s[3], s[4], counts)).join("")}</div></div>`;
+}
+function repeatsIn(id, G){ const c = new Map(); (function w(x, g){ if (!x || g > G) return; if (g > 0) c.set(x, (c.get(x) || 0) + 1); const [a, b] = par(x); w(a, g + 1); w(b, g + 1); })(id, 0); return [...c].filter(e => e[1] > 1).sort((a, b) => b[1] - a[1]); }
+function onRecord(id, G){ let n = 0; (function w(x, g){ if (!x || g > G) return; if (g > 0 && dogs.has(x)) n++; const [a, b] = par(x); w(a, g + 1); w(b, g + 1); })(id, 0); return n; }
+function renderDetail(){
+  const box = $("#detail");
+  if (editing) return renderForm(editing === "edit" ? sel : null);
+  const d = dogs.get(sel);
+  if (!d){
+    box.innerHTML = dogs.size
+      ? `<div class="empty"><b>Pick a dog</b><span>Choose a dog from the index to see its record, pedigree and inbreeding.</span></div>`
+      : `<div class="empty"><b>No dogs on record yet</b><span>${canWrite ? "Use “Add a dog” to enter the first record." : "Records will appear here once they are added."}</span></div>`;
+    return;
+  }
+  const hasP = d.sire || d.dam;
+  const kids = offspring(d.id);
+  const lnk = id => id ? (dogs.has(id) ? `<a class="lnk" data-id="${esc(id)}">${esc(nm(id))}</a>` : esc(id)) : "Not on record";
+  box.innerHTML = `<div class="card">
+    <div class="head">
+      <figure class="photo${d.photo && PH[d.photo] ? "" : " none"}">
+        ${d.photo && PH[d.photo] ? `<img src="${esc(PH[d.photo])}" alt="${esc(d.regName.replace(/"/g, ""))}" onerror="this.parentNode.classList.add('none');this.remove()">` : ""}
+        <span class="ph">No photo yet</span>
+        ${assetsNs ? `<figcaption><button class="btn" id="photoBtn">${d.photo ? "Replace photo" : "Add photo"}</button>${d.photo ? `<button class="btn danger" id="photoDel">Remove</button>` : ""}<input type="file" id="photoFile" accept="image/*" hidden><span class="msg" id="photoMsg" role="status"></span></figcaption>` : ""}
+      </figure>
+      <div class="headtxt">
+        <div class="eyebrow">${d.sex === "M" ? "Male" : d.sex === "F" ? "Female" : "Sex not recorded"} · ${d.status === "cert" ? "Certificate-confirmed" : d.status === "member" ? "Added by a member · not confirmed" : "Not yet confirmed"}</div>
+        <h2>${esc(d.regName)}</h2>
+        <div class="meta">${isAdmin() ? `<span>ADBA reg. <b>${esc(d.reg || "—")}</b> <span class="flag gfk">Super admin</span></span>` : ""}<span>Short name <b>${esc(d.name)}</b></span>${d.by ? `<span id="addedBy"></span>` : ""}</div>
+      </div>
+    </div>
+    <div class="kv">
+      <div><span>Sire</span>${lnk(d.sire)}</div>
+      <div><span>Dam</span>${lnk(d.dam)}</div>
+      <div><span>F (own COI)</span><b>${hasP ? pct(F(d.id)) : "–"}</b></div>
+      <div><span>Ancestors on record</span><b>${ancestors(d.id).size}</b></div>
+    </div>
+    <div id="noteSlot">${d.note ? `<div class="note ${esc(d.status)}">${esc(d.note)}</div>` : ""}</div>
+    <section><div class="pubbar"><h3>Pedigree</h3><div class="seg" role="tablist" aria-label="Pedigree depth"><button role="tab" data-cg="4" aria-selected="${cardGen === 4}">4 generations</button><button role="tab" data-cg="7" aria-selected="${cardGen === 7}">7 generations</button></div></div>${pedigree(d.id, cardGen)}<p class="hint" style="margin-top:6px">Shaded names appear more than once in ${cardGen === 7 ? "seven" : "four"} generations${cardGen === 7 ? ` (${onRecord(d.id, 7)} of 254 positions on record; hover or tap a name for its full registered name)` : ""}. Tap any dog to open its record.</p></section>
+    ${(() => { const sb = siblings(d); const n = sb.full.length + sb.sire.length + sb.dam.length;
+      const grp = (t, list, empty) => `<div class="sibg"><h4>${t} <span class="cnt">${list.length}</span></h4><div class="kids">${list.length ? list.map(k => `<a class="lnk" data-id="${esc(k.id)}">${esc(k.name)}</a>${k.sex ? `<span class="sx">${k.sex}</span>` : ""}`).join("") : `<span class="hint">${empty}</span>`}</div></div>`;
+      return `<section><h3>Siblings on record</h3>${!d.sire && !d.dam ? '<p class="hint">No parents on record, so siblings can\'t be found.</p>' : `<div class="sibs">
+        ${grp("Full siblings", sb.full, d.sire && d.dam ? "None recorded." : "Needs both parents on record.")}
+        ${grp(`Half siblings through the sire${d.sire ? ", " + esc(nm(d.sire)) : ""}`, sb.sire, d.sire ? "None recorded." : "Sire not on record.")}
+        ${grp(`Half siblings through the dam${d.dam ? ", " + esc(nm(d.dam)) : ""}`, sb.dam, d.dam ? "None recorded." : "Dam not on record.")}
+      </div>`}</section>`; })()}
+    <section><h3>Offspring on record</h3><div class="kids">${kids.length ? kids.map(k => lnk(k.id)).join("") : '<span class="hint">None recorded.</span>'}</div></section>
+    ${parentalHTML(d)}
+    <div class="meta"><span>Source: <span id="srcSlot">${d.source === undefined ? "…" : esc(d.source || "—")}</span></span></div>
+    <div class="recact"><button class="btn" id="pairBtn">Use in pairing</button><a class="btn" href="#new/${encodeURIComponent(d.id)}">Discuss on the board</a>
+      ${d.by ? "" : `<button class="btn" id="shareBtn" data-url="${esc(PUBLIC_URL + "#" + d.id)}">Share public link</button><a class="btn" href="${esc(PUBLIC_URL + "#" + d.id)}" target="_blank" rel="noopener">Open public view</a>`}
+      ${d.by && (d.by === uid() || isStaff()) ? `<button class="btn" id="editBtn">Edit this dog</button><button class="btn danger" id="delBtn">Delete this dog</button>` : ""}</div>
+    <div class="msg" id="fMsg" role="status"></div>
+    <div class="pubmsg" id="shareMsg" role="status" hidden></div>
+  </div>`;
+}
+function parentalHTML(d){
+  const s = d.sire && dogs.has(d.sire) ? d.sire : null, m = d.dam && dogs.has(d.dam) ? d.dam : null;
+  if (!s && !m) return "";
+  if (!s || !m) return `<section><h3>Parental breakdown</h3><p class="hint">Only the ${s ? "sire" : "dam"} is on record, so this dog's inbreeding can't be broken down yet.</p></section>`;
+  const coi = kin(s, m), part = partition(s, m);
+  const tot = [...part.values()].reduce((a, b) => a + b, 0) || 1;
+  const rows = [...part.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([a, v]) =>
+    `<tr><td><a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a></td><td class="n">${(100*v).toFixed(2)}</td><td class="n">${Math.round(100*v/tot)}%</td></tr>`).join("");
+  const bl = [...ancestors(d.id)].filter(a => a !== s && a !== m).map(a => [a, blood(d.id, a)]).sort((a, b) => b[1] - a[1]).slice(0, 8);
+  const aM = ancestors(m).add(m), both = [...ancestors(s).add(s)].filter(a => aM.has(a)).length;
+  return `<section><h3>Parental breakdown</h3>
+    <div class="big pb">
+      <div class="stat"><b>${pct(F(s))}</b><span>F of sire, ${esc(nm(s))}</span></div>
+      <div class="stat"><b>${pct(F(m))}</b><span>F of dam, ${esc(nm(m))}</span></div>
+      <div class="stat"><b>${pct(2*coi, 1)}</b><span>Relationship of sire and dam</span></div>
+      <div class="stat"><b>${both}</b><span>Ancestors common to both</span></div>
+    </div>
+    <div class="two" style="margin-top:12px">
+      <section><h3 class="sm3">Where ${esc(d.name)}'s COI comes from</h3>${rows ? `<table><thead><tr><th>Common ancestor</th><th class="n">COI pts</th><th class="n">Share</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="hint">The sire and dam share no ancestors on record: an outcross on paper.</p>'}</section>
+      <section><h3 class="sm3">Blood in ${esc(d.name)}</h3>${bl.length ? `<table><thead><tr><th>Ancestor</th><th class="n">Blood</th><th></th></tr></thead><tbody>${bl.map(([a, v]) => `<tr><td><a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a></td><td class="n">${pct(v)}</td><td><div class="bar"><i style="width:${Math.min(100, 100*v)}%"></i></div></td></tr>`).join("")}</tbody></table>` : '<p class="hint">No grandparents on record.</p>'}</section>
+    </div>
+    <p class="hint" style="margin-top:6px">COI points add up to ${esc(d.name)}'s own COI (${pct(coi)}). Blood is each ancestor's expected share of this dog's genes, counting every path through the pedigree.</p>
+  </section>`;
+}
+function renderForm(editId){
+  const ed = editId ? dogs.get(editId) : null;
+  $("#detail").innerHTML = `<div class="card">
+    <h2>${ed ? "Edit " + esc(plain(ed.regName)) : "Add a dog"}</h2>
+    <p class="hint">${ed ? "You can change the dogs you added. The record stays marked \"Member-added, not confirmed\" until Game Keepers checks it against a certificate. Leave out fight records and owners' addresses or phone numbers." : "Add a dog that isn't in the registry yet. It's marked \"Member-added, not confirmed\" until Game Keepers checks it against a certificate. You can edit or delete dogs you added; registry dogs can't be changed here. Leave out fight records and owners' addresses or phone numbers."}</p>
+    <form class="edit" id="dogForm" novalidate>
+      <label for="fRegName" class="wide">Registered name (as on the certificate)<input class="field" id="fRegName" required maxlength="120" autocomplete="off" placeholder='e.g. Smith&apos;s "Red Rocket"'></label>
+      <div class="wide" id="similar"></div>
+      <label for="fName">Short name<input class="field" id="fName" maxlength="60" placeholder="e.g. Rocket"></label>
+      <label for="fSex">Sex<select class="field" id="fSex"><option value="">Not recorded</option><option value="M">Male</option><option value="F">Female</option></select></label>
+      <label for="fSire">Sire<input class="field" id="fSire" list="dlM" placeholder="Pick from the registry, or leave blank"></label>
+      <label for="fDam">Dam<input class="field" id="fDam" list="dlF" placeholder="Pick from the registry, or leave blank"></label>
+      <label for="fReg">${ed ? "ADBA reg. no. (staff only; blank keeps it)" : "ADBA reg. no. (only Game Keepers staff see it)"}<input class="field" id="fReg" maxlength="20" autocomplete="off"></label>
+      <label for="fNote" class="wide">Notes (colour, birth date, breeder)<textarea class="field" id="fNote" rows="3" maxlength="2000"></textarea></label>
+      <div class="act"><button class="btn pri" type="submit">${ed ? "Save changes" : "Add dog"}</button><button class="btn" type="button" id="cancelBtn">Cancel</button><span class="msg" id="fMsg" role="status"></span></div>
+    </form></div>`;
+  const nrm = s => String(s || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+  $("#fRegName").addEventListener("input", e => {
+    const k = nrm(e.target.value), box = $("#similar");
+    if (k.length < 4){ box.innerHTML = ""; return; }
+    const hits = [...dogs.values()].filter(x => x.id !== editId && (nrm(x.regName).includes(k) || nrm(x.name) === k)).slice(0, 6);
+    box.innerHTML = hits.length ? `<div class="note">Already in the registry? Check these first: ${hits.map(x => `<a class="lnk" data-id="${esc(x.id)}">${esc(plain(x.regName))}</a>`).join(", ")}</div>` : "";
+  });
+  if (ed){
+    $("#fRegName").value = ed.regName; $("#fName").value = ed.name === plain(ed.regName) ? "" : ed.name; $("#fSex").value = ed.sex || "";
+    $("#fSire").value = ed.sire && dogs.has(ed.sire) ? full(ed.sire) : ""; $("#fDam").value = ed.dam && dogs.has(ed.dam) ? full(ed.dam) : "";
+    $("#fReg").value = isAdmin() ? (ed.reg || "") : "";
+    const fillNote = () => { const n = $("#fNote"); if (n && editing === "edit" && sel === ed.id && !n.dataset.touched) n.value = ed.note || ""; };
+    $("#fNote").addEventListener("input", e => { e.target.dataset.touched = "1"; });
+    if (ed.note === undefined){ $("#fNote").placeholder = "Loading the current notes…"; loadNote(ed); noteReq.get(ed.id)?.then(fillNote); } else fillNote();
+  }
+  $("#fRegName").focus();
+}
+
+/* ---------- writes (Supabase) ---------- */
+async function save(ev){
+  ev.preventDefault();
+  const msg = $("#fMsg"); msg.textContent = "";
+  const reg = $("#fRegName").value.trim();
+  if (reg.length < 3){ msg.textContent = "Enter the registered name."; return; }
+  const pick = (v, w) => { v = v.trim(); if (!v) return [null, ""]; const id = findByName(v); return id ? [id, ""] : [undefined, `${w} "${v}" isn't in the registry. Pick it from the list, or leave it blank.`]; };
+  const [sire, e1] = pick($("#fSire").value, "Sire"), [dam, e2] = pick($("#fDam").value, "Dam");
+  if (e1 || e2){ msg.textContent = e1 || e2; return; }
+  const btn = ev.target.querySelector("button[type=submit]");
+  if (editing === "edit"){
+    const d = dogs.get(sel);
+    if (!d){ msg.textContent = "This dog is no longer on record."; return; }
+    if (sire === d.id || dam === d.id){ msg.textContent = "A dog can't be its own parent."; return; }
+    btn.disabled = true;
+    const e = {p_id: d.id, p_reg_name: reg, p_name: $("#fName").value.trim(), p_sex: $("#fSex").value, p_sire: sire, p_dam: dam, p_note: $("#fNote").value.trim(), p_reg_no: $("#fReg").value.trim() || null};
+    const {error} = await sb.rpc("update_member_dog", e);
+    if (error){ msg.textContent = error.message; btn.disabled = false; return; }
+    Object.assign(d, {name: e.p_name || reg.replace(/"/g, ""), regName: reg, sex: e.p_sex, sire, dam, note: e.p_note});
+    if (isAdmin() && e.p_reg_no) d.reg = e.p_reg_no.toUpperCase();
+    noteReq.delete(d.id); noteReq.set(d.id, Promise.resolve());
+    const row = rowMap.get(d.id); if (row){ rowMap.set(d.id, [d.id, d.name, reg, e.p_sex, sire, dam, row[6], row[7], row[8], row[9]]); saveCache(); }
+    editing = false; renderAll(); const m = $("#fMsg"); if (m) m.textContent = "Changes saved.";
+    return;
+  }
+  btn.disabled = true;
+  const a = {p_reg_name: reg, p_name: $("#fName").value.trim(), p_sex: $("#fSex").value, p_sire: sire, p_dam: dam, p_note: $("#fNote").value.trim(), p_reg_no: $("#fReg").value.trim()};
+  const {data: id, error} = await sb.rpc("add_member_dog", a);
+  if (error){ msg.textContent = error.message; btn.disabled = false; return; }
+  dogs.set(id, {id, name: a.p_name || plain(reg), regName: reg, reg: isAdmin() ? a.p_reg_no.toUpperCase() : "", sex: a.p_sex, sire, dam, status: "member", note: a.p_note, source: "Added by a member", program: false, photo: null, by: uid()});
+  editing = false; sel = id; try { history.replaceState(null, "", "#" + id); } catch {} renderAll();
+}
+let delArmed = false;
+async function del(btn){
+  if (!delArmed){ delArmed = true; btn.classList.add("arm"); btn.textContent = "Tap again to delete"; setTimeout(() => { delArmed = false; if (btn.isConnected){ btn.classList.remove("arm"); btn.textContent = "Delete this dog"; } }, 4000); return; }
+  delArmed = false;
+  const id = sel, {error} = await sb.rpc("delete_member_dog", {p_id: id});
+  if (error){ $("#fMsg").textContent = error.message; return; }
+  dogs.delete(id); for (const x of dogs.values()){ if (x.sire === id) x.sire = null; if (x.dam === id) x.dam = null; }
+  sel = null; try { history.replaceState(null, "", location.pathname + location.search); } catch {} renderAll();
+}
+
+/* ---------- pairing desk ---------- */
+function renderPair(){
+  const out = $("#pairOut");
+  const s = findByName($("#pSire").value), d = findByName($("#pDam").value);
+  if (!s || !d){
+    out.innerHTML = `<p class="hint">${$("#pSire").value || $("#pDam").value ? "Pick both dogs from the list of names on record." : "Pick a sire and a dam to compute the litter."}</p>`; return;
+  }
+  const coi = kin(s, d);
+  const part = partition(s, d);
+  const pup = "__pup__";
+  dogs.set(pup, {id: pup, name: "pup", sire: s, dam: d}); reset();
+  const anc = [...ancestors(pup)];
+  const bl = anc.map(a => [a, blood(pup, a)]).filter(x => x[0] !== s && x[0] !== d).sort((a, b) => b[1] - a[1]).slice(0, 10);
+  const ped = pedigree(pup);
+  const repeats = repeatsIn(pup, 4);
+  const ped7 = pairView === "ped7" ? pedigree(pup, 7) : "";
+  const rep7 = pairView === "ped7" ? repeatsIn(pup, 7) : [];
+  const on7 = pairView === "ped7" ? onRecord(pup, 7) : 0;
+  dogs.delete(pup); reset();
+  let rows = "";
+  if (part){
+    const tot = [...part.values()].reduce((a, b) => a + b, 0) || 1;
+    rows = [...part.entries()].sort((a, b) => b[1] - a[1]).slice(0, 8).map(([a, v]) =>
+      `<tr><td><a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a></td><td class="n">${(100*v).toFixed(2)}</td><td class="n">${Math.round(100*v/tot)}%</td></tr>`).join("");
+  }
+  out.innerHTML = `
+  <div class="big">
+    <div class="stat"><b class="hl">${pct(coi)}</b><span>Litter COI</span></div>
+    <div class="stat"><b>${pct(F(s))}</b><span>F of ${esc(nm(s))}</span></div>
+    <div class="stat"><b>${pct(F(d))}</b><span>F of ${esc(nm(d))}</span></div>
+    <div class="stat"><b>${pct(2*coi, 1)}</b><span>Relationship of sire and dam</span></div>
+  </div>
+  <div class="seg" role="tablist" aria-label="Pairing view">
+    <button role="tab" data-pv="ped" aria-selected="${pairView === "ped"}">4-gen pedigree</button>
+    <button role="tab" data-pv="ped7" aria-selected="${pairView === "ped7"}">7-gen pedigree</button>
+    <button role="tab" data-pv="coi" aria-selected="${pairView === "coi"}">COI breakdown</button>
+    <button role="tab" data-pv="ana" aria-selected="${pairView === "ana"}">Pedigree analysis</button>
+  </div>
+  ${pairView === "ana" ? analysisHTML(s, d) : ""}
+  <section ${pairView === "ped" ? "" : "hidden"}>
+    <div class="pubbar"><h3>${esc(nm(s))} × ${esc(nm(d))} litter</h3>
+      <div class="pubact"><button class="btn" id="pubBtn" data-url="${esc(PUBLIC_URL + "#" + s + "~" + d)}">Copy public link</button><a class="btn" href="${esc(PUBLIC_URL + "#" + s + "~" + d)}" target="_blank" rel="noopener">Open public view</a></div></div>
+    <div class="pubmsg" id="pubMsg" role="status" hidden></div>
+    ${ped}
+    <p class="hint" style="margin-top:6px">${repeats.length ? "Repeated in four generations: " + repeats.map(([a, n]) => `<a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a> ×${n}`).join(", ") + ". Shaded names repeat." : "No dog repeats within four generations."} Tap any dog to open its record.</p>
+  </section>
+  ${pairView === "ped7" ? `<section>
+    <h3>${esc(nm(s))} × ${esc(nm(d))} litter · seven generations</h3>
+    <p class="hint" style="margin-bottom:8px">${on7} of 254 ancestor positions are on record; blank positions are founders the registry doesn't trace yet. ${rep7.length ? "Most repeated: " + rep7.slice(0, 12).map(([a, n]) => `<a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a> ×${n}`).join(", ") + (rep7.length > 12 ? `, and ${rep7.length - 12} more` : "") + ". Shaded names repeat." : "No dog repeats within seven generations."} Hover over a name for its full registered name; tap to open its record. The chart scrolls inside its frame.</p>
+    ${ped7}
+  </section>` : ""}
+  <div class="two" ${pairView === "coi" ? "" : "hidden"}>
+    <section><h3>Where the COI comes from</h3>${part ? (rows ? `<table><thead><tr><th>Common ancestor</th><th class="n">COI pts</th><th class="n">Share</th></tr></thead><tbody>${rows}</tbody></table>` : '<p class="hint">No common ancestors on record: an outcross on paper.</p>') : '<p class="hint">Too many loops to break down by ancestor here; the COI above is still exact.</p>'}</section>
+    <section><h3>Blood in the litter</h3><table><thead><tr><th>Ancestor</th><th class="n">Blood</th><th></th></tr></thead><tbody>${bl.map(([a, v]) => `<tr><td><a class="lnk" data-id="${esc(a)}">${esc(nm(a))}</a></td><td class="n">${pct(v)}</td><td><div class="bar"><i style="width:${Math.min(100, 100*v)}%"></i></div></td></tr>`).join("")}</tbody></table></section>
+  </div>`;
+}
+
+/* ---------- pedigree analysis ---------- */
+let hist = new Map(), histEdit = null;
+const EXPLAIN = {
+  lb: "Line breeding concentrates the genes of a chosen ancestor. Every loop back to that dog raises the share of gene pairs that are identical by descent, so the pups grow more uniform and more likely to pass the ancestor's traits on, the faults along with the virtues. The quality of the common ancestor is what matters most in a pairing like this.",
+  in: "This is inbreeding of the closest kind. It fixes traits fastest, and it brings hidden recessive faults to the surface fastest too, so it tests the line as much as it sets it.",
+  out: "An outcross joins families with no common ancestor on record. It brings in variation and new genetic combinations, and it masks recessive faults rather than exposing them. Outcross pups are often better than either parent line, which breeders call hybrid vigor; the usual plan is to keep the best pup carrying the wanted trait and breed it back into the line."
+};
+function kennelOf(id){
+  const d = dogs.get(id); if (!d) return null;
+  const s = d.regName || d.name || "";
+  let k; const q = s.indexOf('"');
+  if (q > 0) k = s.slice(0, q).trim();
+  else { const m = s.match(/^(.+?(?:'s|'))\s/); k = m ? m[1] : null; }
+  if (!k) return null;
+  k = k.replace(/(?:'s|')$/, "").replace(/^(?:[A-Z]\.\s+)+(?=[A-Za-z]{2})/, "").replace(/\b(?:kennels?|knls)\b\.?/gi, "").replace(/\s+/g, " ").trim();
+  return k || null;
+}
+let roleSex = {};
+const sexWord = (id, m, f, n) => { const x = dogs.get(id)?.sex || roleSex[id]; return x === "M" ? m : x === "F" ? f : n; };
+const mating = r => r.label === "line-bred" ? "line breeding" : `${art(r.label)} ${r.label} mating${relSuffix(r)}`;
+const dn = id => `<a class="lnk" data-id="${esc(id)}">${esc((dogs.get(id)?.regName || nm(id)).replace(/"/g, ""))}</a>`;
+const sn = id => `<a class="lnk" data-id="${esc(id)}">${esc(nm(id))}</a>`;
+const andList = a => a.length <= 1 ? (a[0] || "") : a.slice(0, -1).join(", ") + " and " + a[a.length - 1];
+const genWord = n => (["", "one", "two", "three", "four", "five", "six", "seven"][n] || n) + "-generation";
+const isParent = (p, c) => { const d = dogs.get(c); return !!p && !!d && (d.sire === p || d.dam === p); };
+function sibType(a, b){
+  if (!a || !b || a === b) return null; const A = dogs.get(a), B = dogs.get(b); if (!A || !B) return null;
+  const ss = A.sire && A.sire === B.sire, dd = A.dam && A.dam === B.dam;
+  return ss && dd ? "full" : (ss || dd) ? "half" : null;
+}
+function relation(a, b){
+  if (!kin(a, b)) return {label: "outcross", kind: "out"};
+  const A = (m, f) => sexWord(a, m, f, m), B = (m, f) => sexWord(b, m, f, m);
+  if (isParent(a, b)) return {label: `${A("father", "mother")}-to-${B("son", "daughter")}`, kind: "in"};
+  if (isParent(b, a)) return {label: `${B("father", "mother")}-to-${A("son", "daughter")}`, kind: "in"};
+  const st = sibType(a, b);
+  if (st === "full") return {label: `full ${A("brother", "sister")}-to-${B("brother", "sister")}`, kind: "in"};
+  if (st === "half") return {label: "half-sibling", kind: "close"};
+  const gp = (x, y) => par(y).some(p => p && isParent(x, p));
+  if (gp(a, b)) return {label: `${A("grandsire", "granddam")}-to-${B("grandson", "granddaughter")}`, kind: "close"};
+  if (gp(b, a)) return {label: `${B("grandsire", "granddam")}-to-${A("grandson", "granddaughter")}`, kind: "close"};
+  for (const [x, y] of [[a, b], [b, a]]) for (const p of par(y)){ const t = sibType(x, p); if (t) return {label: `${t === "half" ? "half-" : ""}${sexWord(x, "uncle", "aunt", "uncle")}-to-${sexWord(y, "nephew", "niece", "nephew")}`, kind: "close"}; }
+  for (const p of par(a)) for (const q of par(b)){ const t = sibType(p, q); if (t) return {label: t === "full" ? "cousin-to-cousin" : "half-cousin", kind: "lb"}; }
+  return {label: "line-bred", kind: "lb"};
+}
+const relSuffix = r => r.kind === "in" ? " (inbreeding)" : r.kind === "close" ? " (close line breeding)" : r.kind === "lb" && r.label !== "line-bred" ? " (line breeding)" : "";
+const art = w => /^[aeiou]/i.test(w) ? "an" : "a";
+function positions(root, maxG){
+  const out = [];
+  (function w(x, g){ if (!x || g > maxG) return; if (g > 0) out.push({id: x, gen: g}); const [a, b] = par(x); w(a, g + 1); w(b, g + 1); })(root, 0);
+  return out;
+}
+function kennelTally(root, maxG){
+  const m = new Map();
+  for (const p of positions(root, maxG)){
+    const k = kennelOf(p.id); if (!k) continue; const key = "kennel-" + slug(k);
+    const e = m.get(key) || m.set(key, {key, name: hist.get(key)?.title || k, pos: 0, dogs: new Set()}).get(key);
+    e.pos++; e.dogs.add(p.id);
+  }
+  return [...m.values()].sort((a, b) => b.pos - a.pos);
+}
+function analysisHTML(s, d){
+  if (histEdit && document.activeElement?.closest?.("#histForm")) return $("#anaBox")?.outerHTML || "";
+  const pup = "__pup__";
+  dogs.set(pup, {id: pup, name: "litter", sire: s, dam: d}); reset();
+  roleSex = {[s]: "M", [d]: "F"};
+  try { return buildAnalysis(pup, s, d); } finally { dogs.delete(pup); reset(); roleSex = {}; }
+}
+function buildAnalysis(pup, s, d){
+  const said = new Set(), refs = [];
+  const bg = key => { if (!refs.includes(key)) refs.push(key); if (said.has(key)) return ""; const h = hist.get(key); if (!h?.body) return ""; said.add(key); return " " + esc(h.body.trim().replace(/\s*\n+\s*/g, " ")); };
+  const explain = kind => { const k = kind === "close" ? "lb" : kind; if (said.has("x-" + k)) return ""; said.add("x-" + k); return " " + EXPLAIN[k]; };
+  const coi = kin(s, d), part = partition(s, d) || new Map();
+  const top = [...part].sort((a, b) => b[1] - a[1]);
+  const depth = Math.max(0, ...positions(pup, 7).map(p => p.gen));
+  const litter = `${esc(nm(s))} × ${esc(nm(d))} litter`;
+  const paras = [];
+
+  /* litter */
+  const rel = relation(s, d);
+  if (!coi){
+    paras.push(`The ${litter} would be an outcross: ${sn(s)} and ${sn(d)} share no ancestor on record, so the litter's coefficient of inbreeding is 0% on paper. Any concentration the pups carry comes from each parent's own breeding, described below.${explain("out")}`);
+  } else {
+    const A = top[0][0], AH = sexWord(A, "He", "She", "It");
+    let t = `The ${litter} would be the product of ${mating(rel)}, concentrated on ${dn(A)}.`;
+    if (A !== s && A !== d) t += ` Descendants of ${sn(A)} appear in both the sire's and the dam's pedigree, for a total genetic influence of ${pct(blood(pup, A), 1)} in the litter.`;
+    t += ` Calculated from every generation on record, the litter's coefficient of inbreeding is ${pct(coi)}, and ${sn(A)} alone accounts for ${(100*top[0][1]).toFixed(2)} points of it.`;
+    const next = top.slice(1, 3).filter(x => x[1] >= 0.1 * top[0][1]);
+    if (next.length) t += ` The next largest sources are ${andList(next.map(([x, v]) => `${sn(x)} (${(100*v).toFixed(2)})`))}.`;
+    t += explain(rel.kind) + bg("dog-" + A);
+    paras.push(t);
+  }
+
+  /* sire and dam */
+  const parentPara = (P, role) => {
+    const [a, b] = par(P), He = sexWord(P, "He", "She", "It"), his = sexWord(P, "his", "her", "its");
+    if (!a && !b) return `${dn(P)}, the ${role}, has no parentage on record. Adding ${his} certificate to the registry will extend this analysis.`;
+    let t;
+    if (!a || !b) t = `${dn(P)}, the ${role}, has only one parent on record, ${dn(a || b)}.`;
+    else {
+      const r = relation(a, b);
+      t = `${dn(P)}, the ${role}, is the result of ${mating(r)}${r.label === "line-bred" ? " between" : " of"} ${dn(a)} and ${dn(b)}.`;
+      if (r.kind === "out") t += explain("out");
+      else {
+        const pp = [...(partition(a, b) || new Map())].sort((x, y) => y[1] - x[1]);
+        if (pp.length){
+          const A = pp[0][0], tied = pp.filter(x => x[0] !== A && x[1] >= 0.999 * pp[0][1]).map(x => x[0]).slice(0, 1);
+          const firstGen = new Map(); for (const p of positions(P, 9)) if (!firstGen.has(p.id)) firstGen.set(p.id, p.gen);
+          const viaFrom = root => [root, ...ancestors(root)].filter(x => isParent(A, x)).sort((x, y) => (firstGen.get(x) ?? 99) - (firstGen.get(y) ?? 99));
+          const more = (v, n) => v.length > n ? ` and ${v.length - n} more of ${sexWord(A, "his", "her", "its")} offspring` : "";
+          if (A === a || A === b){
+            const other = A === a ? b : a, via = viaFrom(other);
+            t += ` ${sn(A)} appears on both sides: as ${his} ${A === a ? "sire" : "dam"}, and again on ${his} ${A === a ? "dam's" : "sire's"} side${via.length ? ` through ${andList(via.slice(0, 4).map(sn))}${more(via, 4)}` : ""}.`;
+          } else {
+            const via = [...new Set([...viaFrom(a), ...viaFrom(b)])].sort((x, y) => (firstGen.get(x) ?? 99) - (firstGen.get(y) ?? 99));
+            t += ` Both sides of ${his} pedigree trace to ${dn(A)}${tied.length ? ` and ${dn(tied[0])}` : ""}${!tied.length && via.length > 1 ? `, through ${andList(via.slice(0, 4).map(sn))}${more(via, 4)}` : ""}.`;
+          }
+          t += ` The total genetic influence of ${sn(A)} in ${esc(nm(P))}'s pedigree is ${pct(blood(P, A), 1)}, and ${his} own coefficient of inbreeding is ${pct(F(P), 1)}.`;
+          t += explain(r.kind) + bg("dog-" + A);
+        }
+      }
+    }
+    const kt = kennelTally(P, 7), dp = Math.max(0, ...positions(P, 7).map(p => p.gen));
+    const main = kt.slice(0, 3), more = kt.slice(3).filter(k => hist.get(k.key)?.body);
+    if (main.length){
+      t += ` Prominent bloodlines in ${esc(nm(P))}'s ${genWord(dp)} pedigree include ${andList(main.map(k => esc(k.name)))}.`;
+      for (const k of main) t += bg(k.key);
+    }
+    if (more.length){
+      t += ` Further back ${more.length > 1 ? "are" : "is"} the ${andList(more.map(k => esc(k.name)))} ${more.length > 1 ? "lines" : "line"}.`;
+      for (const k of more) t += bg(k.key);
+    }
+    return t;
+  };
+  paras.push(parentPara(s, "sire"), parentPara(d, "dam"));
+
+  /* prominent bloodlines */
+  const items = [];
+  const topDogs = coi ? top.slice(0, 3).map(x => x[0]) : [...ancestors(pup)].filter(x => x !== s && x !== d && positions(pup, 7).filter(p => p.id === x).length > 1).sort((a, b) => blood(pup, b) - blood(pup, a)).slice(0, 3);
+  for (const x of topDogs) items.push(dn(x));
+  const kl = kennelTally(pup, 7);
+  for (const k of [...kl.slice(0, 5), ...kl.slice(5).filter(k => hist.get(k.key)?.body)]) if (items.length < 9) items.push(esc(k.name));
+  const srcs = [...new Set(refs.filter(k => said.has(k)).map(k => hist.get(k)?.source || "").flatMap(x => x.split(";")).map(x => x.trim()).filter(Boolean))];
+
+  /* background notes manager */
+  const rows = refs.map(k => {
+    const h = hist.get(k), kind = k.startsWith("dog-") ? "Dog" : "Kennel";
+    const name = h?.title || (k.startsWith("dog-") ? nm(k.slice(4)) : kl.concat(kennelTally(s, 7), kennelTally(d, 7)).find(e => e.key === k)?.name || k.slice(7));
+    if (histEdit === k) return `<li class="hrow"><form id="histForm" data-key="${esc(k)}" class="edit">
+      <label for="hTitle">${kind} name<input class="field" id="hTitle" value="${esc(name)}"></label>
+      <label for="hSource">Source<input class="field" id="hSource" value="${esc(h?.source || "")}" placeholder="e.g. ADBA Pedigree Analysis, Dec 14 2022"></label>
+      <label for="hBody" class="wide">Background<textarea class="field" id="hBody" rows="4">${esc(h?.body || "")}</textarea></label>
+      <div class="act"><button class="btn pri" type="submit">Save note</button><button class="btn" type="button" id="histCancel">Cancel</button>${h ? `<button class="btn danger" type="button" id="histDel">Delete note</button>` : ""}<span class="msg" id="hMsg" role="status"></span></div></form></li>`;
+    return `<li class="hrow"><div><b>${esc(name)}</b> <span class="hint">${kind}${h?.source ? " · " + esc(h.source) : ""}</span><div class="hint">${h?.body ? esc(h.body.slice(0, 140)) + (h.body.length > 140 ? "…" : "") : "No background yet."}</div></div></li>`;
+  }).join("");
+
+  /* seven-generation percentage tables (ADBA "Pedigree Analysis By Percentage" layout) */
+  const pos7 = positions(pup, 7), G = [1, 2, 3, 4, 5, 6, 7];
+  const tally = keyOf => { const m = new Map(); for (const p of pos7){ const k = keyOf(p.id); if (!k) continue; const r = m.get(k) || m.set(k, Array(8).fill(0)).get(k); r[p.gen] += Math.pow(0.5, p.gen); } return [...m].map(([k, r]) => ({k, r, t: r.slice(1).reduce((a, b) => a + b, 0)})).sort((a, b) => b.t - a.t || String(a.k).localeCompare(String(b.k))); };
+  const cell = (v, g) => { const s = g <= 2 ? Math.round(100*v) + "%" : (100*v).toFixed(g === 3 ? 1 : 2) + "%"; return `<td class="n${v ? "" : " z"}">${s}</td>`; };
+  const tot = v => `<td class="n t">${Math.round(100*v)}%</td>`;
+  const dogRowsP = tally(id => id).filter(x => x.t >= 0.125 - 1e-9).slice(0, 24);
+  const kenAll = tally(id => kennelOf(id));
+  const head = (label, per7) => `<thead><tr><th rowspan="2">${label}</th><th colspan="7" class="cg">Pedigree percentages</th><th rowspan="2" class="n">Total %<br>7 gens</th>${per7 ? `<th rowspan="2" class="n">Total %<br>/ 7 gens</th>` : ""}</tr><tr>${["1st", "2nd", "3rd", "4th", "5th", "6th", "7th"].map(x => `<th class="n">${x}</th>`).join("")}</tr></thead>`;
+  const pctTable = (title, label, rows, nameOf, per7) => rows.length ? `<h4>${title}</h4><div class="tw"><table class="pct">${head(label, per7)}<tbody>${rows.map(x => `<tr><td>${nameOf(x.k)}</td>${G.map(g => cell(x.r[g], g)).join("")}${tot(x.t)}${per7 ? `<td class="n">${Math.round(100*x.t/7)}%</td>` : ""}</tr>`).join("")}</tbody></table></div>` : "";
+  const dogName = id => `<a class="lnk" data-id="${esc(id)}">${esc((dogs.get(id)?.regName || nm(id)).replace(/"/g, ""))}</a>`;
+  const kenName = k => esc(k);
+  const sheet = `<article class="cert sheet">
+    <header class="cert-h"><div class="eyebrow">Game Keepers · Members</div><h2 class="sm">Seven Generation Pedigree Analysis by Percentage</h2></header>
+    <h3 class="cert-subj">${esc(nm(s))} × ${esc(nm(d))}<span>Proposed litter</span></h3>
+    ${pctTable("Dog representation", "Dog name", dogRowsP, dogName, false)}
+    ${pctTable("Breeder representation", "Breeder", kenAll.slice(0, 9), kenName, true)}
+    ${pctTable("Other important bloodlines", "Breeder", kenAll.slice(9, 19), kenName, true)}
+    <p class="cert-sig">Each appearance of a dog in a generation counts its expected share of the litter's pedigree at that depth: 50% for a parent, 25% for a grandparent, halving each generation. Totals add every appearance through seven generations, so a breeder's total can pass 100%. Dogs listed are those totalling 12.5% or more; breeders are grouped by kennel prefix. Positions with no dog on record count for nothing, so deep generations are floors.</p>
+  </article>`;
+
+  return `<div id="anaBox"><article class="cert">
+    <header class="cert-h"><div class="eyebrow">Game Keepers · Members</div><h2>Pedigree Analysis</h2></header>
+    <h3 class="cert-subj">${esc(nm(s))} × ${esc(nm(d))}<span>Proposed litter · COI ${pct(coi)}</span></h3>
+    ${paras.map(p => `<p>${p}</p>`).join("")}
+    <div class="cert-f">
+      <p class="cert-lh">Prominent bloodlines identified in the ${genWord(depth)} pedigree of the litter:</p>
+      <ul class="cert-bl">${items.map(x => `<li>${x}</li>`).join("")}</ul>
+      <p class="cert-sig">Pedigree analysis from the records of the Game Keepers registry, ${esc(new Date().toLocaleDateString("en-US", {month: "long", day: "numeric", year: "numeric"}))}. Genetic influence is expected blood by descent and COI is Wright's coefficient, both computed from every generation on record; where founders are cut off they are floors.${srcs.length ? " Background notes: " + srcs.map(esc).join("; ") + "." : ""}</p>
+    </div>
+  </article>
+  ${sheet}
+  <section class="hnotes"><h3>Background notes in this analysis</h3><p class="hint">Breeder and dog histories are woven into the analysis where a note exists.</p><ul>${rows}</ul></section></div>`;
+}
+async function saveHist(e){
+  e.preventDefault();
+  const f = e.target, key = f.dataset.key, msg = $("#hMsg");
+  const body = $("#hBody").value.trim();
+  if (!body){ msg.textContent = "Write the background first."; return; }
+  try {
+    const row = {key, kind: key.startsWith("dog-") ? "dog" : "kennel", title: $("#hTitle").value.trim(), body, source: $("#hSource").value.trim()};
+    const {error} = await sb.from("history").upsert(row); if (error) throw error;
+    hist.set(key, row); histEdit = null; renderPair();
+  } catch (err){ msg.textContent = err?.code === "42501" ? "You don't have permission to change notes here." : "Couldn't save. Try again in a moment."; }
+}
+
+
+/* ---------- Supabase ---------- */
+const SUPABASE_URL = "https://ordsrwpmccpxxbnbxfcj.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9yZHNyd3BtY2NweHhibmJ4ZmNqIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTM0NzYyMjEsImV4cCI6MjEwOTA1MjIyMX0.pRC88Jpt-07-DijWIpAgl_G3Z8N5PfJi6-RV8OVqyT0";
+const PAGE_URL = location.origin + location.pathname;
+const mm = (k, t) => `<p class="mm ${k}" role="status">${esc(t)}</p>`;
+if (!window.supabase || !window.supabase.createClient){ $("#gate").innerHTML = mm("err", "The members area couldn't load its sign-in library. Check your connection and reload the page."); return; }
+const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {auth: {persistSession: true, detectSessionInUrl: true}});
+let session = null, profile = null, PH = {}, loaded = false, loading = null, recovering = false;
+const names = new Map();
+const uid = () => session?.user?.id;
+const isStaff = () => !!profile && ["moderator", "super_admin"].includes(profile.role);
+const isAdmin = () => profile?.role === "super_admin";
+const qs = new URLSearchParams(location.search);
+const flag = qs.get("joined") ? "joined" : qs.get("canceled") ? "canceled" : null;
+if (flag){ try { history.replaceState(null, "", location.pathname + location.hash); } catch {} }
+function isMember(p){
+  if (!p || p.banned) return false;
+  if (["moderator", "super_admin"].includes(p.role)) return true;
+  return ["active", "trialing"].includes(p.subscription_status) && (!p.current_period_end || new Date(p.current_period_end) > new Date());
+}
+async function loadProfile(){ const {data, error} = await sb.from("profiles").select("*").eq("id", uid()).maybeSingle(); if (error) throw error; profile = data; }
+function chrome(member){
+  $("#app").hidden = !member; $("#gate").hidden = member; $("#stats").hidden = !member;
+  $("#who").hidden = !session; if (session) $("#whoName").textContent = profile?.display_name || session.user.email;
+}
+async function refresh(){
+  const {data} = await sb.auth.getSession(); session = data.session;
+  if (recovering) return viewRecovery();
+  if (!session){ profile = null; forgetRegistry(); chrome(false); return viewSignIn(); }
+  try { await loadProfile(); } catch (e){ chrome(false); $("#gate").innerHTML = mm("err", "Couldn't load your account: " + e.message); return; }
+  if (!isMember(profile)){ forgetRegistry(); Cache.clear(); chrome(false); return viewJoin(); }
+  chrome(true);
+  await loadAll();
+  route();
+}
+sb.auth.onAuthStateChange((ev, s) => {
+  session = s;
+  if (ev === "PASSWORD_RECOVERY"){ recovering = true; viewRecovery(); return; }
+  if (ev === "SIGNED_IN" || ev === "SIGNED_OUT" || ev === "USER_UPDATED") setTimeout(refresh, 0);
+});
+$("#signOut").addEventListener("click", async () => { await sb.auth.signOut(); forgetRegistry(); await Cache.clear(); try { history.replaceState(null, "", location.pathname); } catch {} refresh(); });
+
+function viewSignIn(mode = "in"){
+  const tabs = [["in", "Sign in"], ["up", "Create account"], ["reset", "Forgot password"]];
+  $("#gate").innerHTML = `<div class="seg" role="tablist">${tabs.map(([k, t]) => `<button type="button" role="tab" data-mode="${k}" aria-selected="${k === mode}">${t}</button>`).join("")}</div>
+    <form id="authForm">
+      ${mode === "up" ? `<label>Display name (shown on the board)<input class="field" name="dn" required maxlength="40" autocomplete="nickname"></label>` : ""}
+      <label>Email<input class="field" type="email" name="em" required autocomplete="email"></label>
+      ${mode !== "reset" ? `<label>Password<input class="field" type="password" name="pw" required minlength="8" autocomplete="${mode === "up" ? "new-password" : "current-password"}"></label>` : ""}
+      <button class="btn pri" type="submit">${mode === "in" ? "Sign in" : mode === "up" ? "Create account" : "Email me a reset link"}</button>
+      <div id="authMsg"></div>
+    </form>
+    <p class="hint">Membership is a yearly subscription. Create a free account first; you can join right after. Just checking a litter's COI? The <a class="lnk" href="./">free pairing desk</a> needs no account.</p>`;
+  $("#gate").querySelectorAll("[data-mode]").forEach(b => b.addEventListener("click", () => viewSignIn(b.dataset.mode)));
+  $("#authForm").addEventListener("submit", async e => {
+    e.preventDefault();
+    const f = e.target, btn = f.querySelector("button[type=submit]"), m = $("#authMsg"), em = f.em.value.trim(), pw = f.pw?.value;
+    btn.disabled = true; m.innerHTML = "";
+    try {
+      if (mode === "in"){ const {error} = await sb.auth.signInWithPassword({email: em, password: pw}); if (error) throw error; }
+      else if (mode === "up"){ const {data, error} = await sb.auth.signUp({email: em, password: pw, options: {data: {display_name: f.dn.value.trim()}, emailRedirectTo: PAGE_URL}}); if (error) throw error; if (!data.session) m.innerHTML = mm("ok", "Check your email for a confirmation link, then come back and sign in."); }
+      else { const {error} = await sb.auth.resetPasswordForEmail(em, {redirectTo: PAGE_URL}); if (error) throw error; m.innerHTML = mm("ok", "If that email has an account, a reset link is on its way."); }
+    } catch (err){ m.innerHTML = mm("err", err.message || String(err)); }
+    btn.disabled = false;
+  });
+}
+function viewRecovery(){
+  chrome(false);
+  $("#gate").innerHTML = `<h2>Set a new password</h2><form id="rec"><label>New password<input class="field" type="password" name="pw" minlength="8" required autocomplete="new-password"></label><button class="btn pri" type="submit">Save password</button><div id="recMsg"></div></form>`;
+  $("#rec").addEventListener("submit", async e => { e.preventDefault(); const {error} = await sb.auth.updateUser({password: e.target.pw.value}); if (error){ $("#recMsg").innerHTML = mm("err", error.message); return; } recovering = false; refresh(); });
+}
+let pollTimer = null;
+function viewJoin(){
+  const p = profile || {}, lapsed = p.subscription_status && !["none", "active", "trialing"].includes(p.subscription_status);
+  $("#gate").innerHTML = `${flag === "joined" ? `<div id="joinWait">${mm("info", "Payment received. Switching on your membership…")}</div>` : ""}
+    ${flag === "canceled" ? mm("info", "Checkout was canceled. You haven't been charged.") : ""}
+    ${p.banned ? mm("err", "This account has been suspended. Contact Game Keepers if you think this is a mistake.") : `
+    <h2>Yearly membership</h2>
+    <ul class="hint"><li>The full registry: every dog's record, pedigree to seven generations, siblings, offspring and COI breakdown</li><li>Pairing desk with litter COI and the written Pedigree Analysis</li><li>The members' discussion board, and adding your own dogs</li></ul>
+    ${lapsed ? mm("info", "Your membership isn't active (" + String(p.subscription_status).replace("_", " ") + "). Renew below, or update your card under Manage billing.") : ""}
+    <div class="recact"><button class="btn pri" id="joinBtn" type="button">Join — pay securely with Stripe</button>${p.stripe_customer_id ? `<button class="btn" id="portalBtn" type="button">Manage billing</button>` : ""}</div>
+    <div id="joinMsg"></div>
+    <p class="hint">Billed yearly. Cancel anytime from your account; access lasts until the end of the year you paid for.</p>`}`;
+  $("#joinBtn")?.addEventListener("click", () => goStripe("create-checkout", $("#joinBtn"), $("#joinMsg")));
+  $("#portalBtn")?.addEventListener("click", () => goStripe("billing-portal", $("#portalBtn"), $("#joinMsg")));
+  if (flag === "joined" && !pollTimer){
+    let n = 0;
+    pollTimer = setInterval(async () => {
+      n++; try { await loadProfile(); } catch {}
+      if (isMember(profile)){ clearInterval(pollTimer); pollTimer = null; refresh(); }
+      else if (n >= 15){ clearInterval(pollTimer); pollTimer = null; const w = $("#joinWait"); if (w) w.innerHTML = mm("info", "Your payment went through, but the membership hasn't switched on yet. Reload this page in a minute."); }
+    }, 3000);
+  }
+}
+async function goStripe(fn, btn, box){
+  btn.disabled = true; box.innerHTML = `<p class="hint"><span class="spin"></span> Opening Stripe…</p>`;
+  try {
+    const {data, error} = await sb.functions.invoke(fn, {body: {plan: "yearly"}});
+    if (error) throw error;
+    if (!data?.url) throw new Error(data?.error || "No link came back from Stripe.");
+    location.href = data.url;
+  } catch (e){ let m = e.message || String(e); try { const j = await e.context?.json?.(); if (j?.error) m = j.error; } catch {} box.innerHTML = mm("err", m); btn.disabled = false; }
+}
+
+/* ---------- loading the registry ---------- */
+// The registry is saved on the member's device (IndexedDB) after the first load. Later visits show it
+// at once and fetch only dogs changed since. Registration numbers are never saved on the device.
+const CACHE_V = 1, OVERLAP_MS = 10 * 60 * 1000, COLS = "id,name,reg_name,sex,sire_id,dam_id,status,program,photo_path,created_by";
+const Cache = (() => {
+  let dbp = null;
+  const open = () => dbp || (dbp = new Promise((res, rej) => {
+    const r = indexedDB.open("gdr-members", 1);
+    r.onupgradeneeded = () => r.result.createObjectStore("kv");
+    r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error);
+  }));
+  const run = async (mode, f) => { const d = await open(); return new Promise((res, rej) => {
+    const tx = d.transaction("kv", mode), q = f(tx.objectStore("kv"));
+    tx.oncomplete = () => res(q && q.result); tx.onerror = tx.onabort = () => rej(tx.error); }); };
+  return {
+    get: k => run("readonly", s => s.get(k)).catch(() => null),
+    set: (k, v) => run("readwrite", s => s.put(v, k)).catch(() => {}),
+    clear: () => run("readwrite", s => s.clear()).catch(() => {})
+  };
+})();
+let rowMap = new Map(), syncedAt = null;
+const toDog = a => ({id: a[0], name: a[1] || a[0], regName: a[2] || a[1] || a[0], reg: "", sex: a[3] || "", sire: a[4] || null, dam: a[5] || null, status: a[6], note: undefined, source: undefined, program: !!a[7], photo: a[8] || null, by: a[9] || null});
+const objToRow = r => [r.id, r.name, r.reg_name, r.sex, r.sire_id, r.dam_id, r.status, r.program, r.photo_path, r.created_by];
+function forgetRegistry(){ loaded = false; loading = null; dogs = new Map(); rowMap = new Map(); syncedAt = null; PH = {}; noteReq.clear(); }
+const cacheKey = () => "registry:" + uid();
+function saveCache(){ Cache.set(cacheKey(), {v: CACHE_V, at: syncedAt, rows: [...rowMap.values()]}); }
+
+// whole registry: one request if 11_fast_load.sql has been run, otherwise all pages at once
+async function fetchAll(){
+  const r = await sb.rpc("registry_sync", {p_since: null});
+  if (!r.error) return {rows: r.data.dogs, at: r.data.now};
+  const {count, error} = await sb.from("dogs").select("id", {count: "exact", head: true}); if (error) throw error;
+  const pages = await Promise.all(Array.from({length: Math.ceil((count || 0) / 1000) + 1}, (_, i) =>
+    sb.from("dogs").select(COLS).order("id").range(i * 1000, i * 1000 + 999)));
+  const rows = []; for (const p of pages){ if (p.error) throw p.error; rows.push(...p.data.map(objToRow)); }
+  return {rows, at: null};
+}
+async function fetchChanges(since){
+  const r = await sb.rpc("registry_sync", {p_since: new Date(new Date(since) - OVERLAP_MS).toISOString()});
+  if (r.error) throw r.error; return r.data;
+}
+async function loadExtras(){
+  const jobs = [];
+  if (isAdmin()) jobs.push((async () => {
+    const {count} = await sb.from("dog_private").select("dog_id", {count: "exact", head: true}).neq("reg_no", "");
+    const pages = await Promise.all(Array.from({length: Math.ceil((count || 0) / 1000) + 1}, (_, i) =>
+      sb.from("dog_private").select("dog_id,reg_no").neq("reg_no", "").order("dog_id").range(i * 1000, i * 1000 + 999)));
+    for (const p of pages) for (const r of p.data || []){ const d = dogs.get(r.dog_id); if (d) d.reg = r.reg_no; }
+  })().catch(() => {}));
+  jobs.push(signPhotos());
+  jobs.push(sb.from("history").select("key,kind,title,body,source").then(({data}) => { hist = new Map((data || []).map(h => [h.key, h])); }));
+  await Promise.all(jobs);
+}
+async function signPhotos(){
+  const paths = [...new Set([...dogs.values()].map(d => d.photo).filter(p => p && !PH[p]))];
+  if (!paths.length) return;
+  const {data} = await sb.storage.from("dog-photos").createSignedUrls(paths, 3600 * 12);
+  for (const x of data || []) if (x.signedUrl) PH[x.path] = x.signedUrl;
+}
+function applyChanges(c){
+  let n = 0;
+  for (const id of c.deleted || []) if (rowMap.delete(id)){ dogs.delete(id); n++; }
+  for (const a of c.dogs || []){
+    const old = rowMap.get(a[0]); rowMap.set(a[0], a);
+    if (old && JSON.stringify(old) === JSON.stringify(a)) continue;
+    const prev = dogs.get(a[0]), d = toDog(a);
+    if (prev) d.reg = prev.reg;
+    noteReq.delete(a[0]); dogs.set(a[0], d); n++;
+  }
+  syncedAt = c.now; return n;
+}
+async function backgroundSync(){
+  try {
+    const c = await fetchChanges(syncedAt), n = applyChanges(c);
+    saveCache();
+    if (!n) return;
+    await signPhotos();
+    sortedC = null; renderStats(); renderList(); renderDatalists();
+    if (!editing && sel && $("#viewReg") && !$("#viewReg").hidden){ renderDetail(); afterDetail(); }
+  } catch (e){ /* keep showing the saved copy; the next visit tries again */ }
+}
+async function loadAll(){
+  if (loaded) return;
+  if (!loading) loading = (async () => {
+    const saved = await Cache.get(cacheKey());
+    if (saved && saved.v === CACHE_V && saved.at && Array.isArray(saved.rows) && saved.rows.length){
+      rowMap = new Map(saved.rows.map(a => [a[0], a])); syncedAt = saved.at;
+      dogs = new Map(saved.rows.map(a => [a[0], toDog(a)]));
+      await loadExtras();
+      loaded = true;
+      setTimeout(backgroundSync, 0);
+      return;
+    }
+    const {rows, at} = await fetchAll();
+    rowMap = new Map(rows.map(a => [a[0], a])); syncedAt = at;
+    dogs = new Map(rows.map(a => [a[0], toDog(a)]));
+    await loadExtras();
+    loaded = true;
+    if (syncedAt) saveCache();
+  })().catch(e => { loading = null; $("#detail").innerHTML = `<div class="empty"><b>Couldn't load the registry</b><span>${esc(e.message)}</span></div>`; throw e; });
+  return loading;
+}
+
+/* ---------- board ---------- */
+const RULES = `<p class="rules">Board rules: keep it to pedigrees, breeding and dog care. No fight records or anything about fighting, and no owners' addresses or phone numbers. Moderators remove posts that break these rules.</p>`;
+async function loadNames(ids){
+  const need = [...new Set(ids)].filter(i => i && !names.has(i)); if (!need.length) return;
+  const {data} = await sb.from("member_names").select("id,display_name,is_staff").in("id", need);
+  (data || []).forEach(r => names.set(r.id, r));
+}
+const who = id => { const n = names.get(id); return `<b>${esc(n?.display_name || "Member")}</b>${n?.is_staff ? ' <span class="flag gfk">Staff</span>' : ""}`; };
+const when = t => t ? new Date(t).toLocaleString(undefined, {dateStyle: "medium", timeStyle: "short"}) : "";
+async function viewBoard(){
+  const box = $("#viewBoard");
+  box.innerHTML = `<div class="bbar"><h3 style="margin:0">Members' board</h3><a class="btn pri" href="#new">Start a thread</a></div>${RULES}<div id="thr"><p class="hint"><span class="spin"></span> Loading threads…</p></div>`;
+  const {data, error} = await sb.from("threads").select("id,title,author_id,dog_id,pinned,locked,created_at,last_post_at,posts(count)").order("pinned", {ascending: false}).order("last_post_at", {ascending: false}).limit(200);
+  const t = $("#thr"); if (!t) return;
+  if (error){ t.innerHTML = mm("err", "Couldn't load the board: " + error.message); return; }
+  await loadNames(data.map(x => x.author_id));
+  t.innerHTML = data.length ? `<div class="tlist">${data.map(x => { const n = x.posts?.[0]?.count ?? 0;
+    return `<a class="thr" href="#thread/${x.id}"><span class="t">${x.pinned ? "📌 " : ""}${x.locked ? "🔒 " : ""}${esc(x.title)}</span><span class="n">${n} ${n === 1 ? "reply" : "replies"}</span><span class="m">${esc(names.get(x.author_id)?.display_name || "Member")} · ${x.dog_id && dogs.has(x.dog_id) ? esc(full(x.dog_id)) + " · " : ""}last activity ${when(x.last_post_at)}</span></a>`; }).join("")}</div>` : `<p class="hint">No threads yet. Start the first one.</p>`;
+}
+function viewNewThread(dogId){
+  const d = dogId && dogs.get(dogId);
+  $("#viewBoard").innerHTML = `<p class="hint"><a class="lnk" href="#board">← Board</a></p><h3 style="margin:0">New thread</h3>${RULES}
+    <form id="nt">
+      <label class="f">Title<input class="field" name="title" required minlength="3" maxlength="200" value="${d ? esc(full(d.id)) : ""}"></label>
+      <label class="f">About a dog (optional)<input class="field" name="dog" list="dlAll" placeholder="Pick a dog from the registry" value="${d ? esc(full(d.id)) : ""}"></label>
+      <label class="f">Message<textarea class="field" name="body" required maxlength="20000"></textarea></label>
+      <div class="recact"><button class="btn pri" type="submit">Post thread</button><a class="btn" href="#board">Cancel</a></div><div id="ntMsg"></div>
+    </form>`;
+  $("#nt").addEventListener("submit", async e => {
+    e.preventDefault(); const f = e.target, btn = f.querySelector("button[type=submit]");
+    let dog_id = null; const dn = f.dog.value.trim();
+    if (dn){ dog_id = findByName(dn); if (!dog_id){ $("#ntMsg").innerHTML = mm("err", "That dog isn't in the registry. Pick one from the list or leave it blank."); return; } }
+    btn.disabled = true;
+    const {data, error} = await sb.from("threads").insert({author_id: uid(), title: f.title.value.trim(), body: f.body.value.trim(), dog_id}).select("id").single();
+    if (error){ $("#ntMsg").innerHTML = mm("err", error.message); btn.disabled = false; return; }
+    location.hash = "thread/" + data.id;
+  });
+}
+async function viewThread(id){
+  const box = $("#viewBoard"); box.innerHTML = `<p class="hint"><span class="spin"></span> Loading…</p>`;
+  const [{data: t, error: e1}, {data: posts, error: e2}] = await Promise.all([sb.from("threads").select("*").eq("id", id).maybeSingle(), sb.from("posts").select("*").eq("thread_id", id).order("created_at")]);
+  if (e1 || e2){ box.innerHTML = mm("err", (e1 || e2).message); return; }
+  if (!t){ box.innerHTML = `<p class="hint">This thread was removed. <a class="lnk" href="#board">Back to the board</a></p>`; return; }
+  await loadNames([t.author_id, ...posts.map(p => p.author_id)]);
+  const mine = a => a === uid();
+  const acts = (kind, p) => { const a = [];
+    if (mine(p.author_id) && !(kind === "thread" && t.locked && !isStaff())) a.push(`<button class="linkbtn" data-act="edit-${kind}" data-pid="${p.id}" type="button">Edit</button>`);
+    if (mine(p.author_id) || isStaff()) a.push(`<button class="linkbtn" data-act="del-${kind}" data-pid="${p.id}" type="button">Delete</button>`);
+    if (kind === "thread" && isStaff()) a.push(`<button class="linkbtn" data-act="pin" type="button">${t.pinned ? "Unpin" : "Pin"}</button>`, `<button class="linkbtn" data-act="lock" type="button">${t.locked ? "Unlock" : "Lock"}</button>`);
+    return a.length ? `<div class="ac">${a.join("")}</div>` : ""; };
+  const block = (kind, p, first) => `<article class="post${first ? " first" : ""}" id="p-${p.id}"><div class="hd">${who(p.author_id)}<span>${when(p.created_at)}${p.edited_at ? " · edited" : ""}</span></div><p class="bd">${esc(p.body)}</p>${acts(kind, p)}</article>`;
+  box.innerHTML = `<p class="hint"><a class="lnk" href="#board">← Board</a>${t.dog_id && dogs.has(t.dog_id) ? ` · About <a class="lnk" data-id="${esc(t.dog_id)}">${esc(full(t.dog_id))}</a>` : ""}${t.pinned ? " · 📌 Pinned" : ""}${t.locked ? " · 🔒 Locked" : ""}</p>
+    <h2 style="font-family:var(--display);font-size:28px;margin:0">${esc(t.title)}</h2>
+    ${block("thread", t, true)}${posts.map(p => block("post", p, false)).join("")}
+    ${t.locked ? `<p class="hint">This thread is locked. No new replies.</p>` : `<form id="rp"><label class="f">Reply<textarea class="field" name="body" required maxlength="20000"></textarea></label><div class="recact"><button class="btn pri" type="submit">Post reply</button></div><div id="rpMsg"></div></form>`}${RULES}`;
+  $("#rp")?.addEventListener("submit", async e => { e.preventDefault(); const b = e.target.querySelector("button"); b.disabled = true;
+    const {error} = await sb.from("posts").insert({thread_id: id, author_id: uid(), body: e.target.body.value.trim()});
+    if (error){ $("#rpMsg").innerHTML = mm("err", error.message); b.disabled = false; return; } viewThread(id); });
+  box.querySelectorAll("[data-act]").forEach(b => b.addEventListener("click", async () => {
+    const act = b.dataset.act, pid = b.dataset.pid; let res;
+    if (act === "pin") res = await sb.from("threads").update({pinned: !t.pinned}).eq("id", id);
+    else if (act === "lock") res = await sb.from("threads").update({locked: !t.locked}).eq("id", id);
+    else if (act === "del-thread"){ if (!confirm("Delete this whole thread and its replies?")) return; res = await sb.from("threads").delete().eq("id", id); if (!res.error){ location.hash = "board"; return; } }
+    else if (act === "del-post"){ if (!confirm("Delete this reply?")) return; res = await sb.from("posts").delete().eq("id", pid); }
+    else if (act.startsWith("edit-")) return editInPlace(act === "edit-thread" ? "threads" : "posts", pid, act === "edit-thread" ? t.body : posts.find(p => p.id === pid).body, () => viewThread(id));
+    if (res?.error){ box.insertAdjacentHTML("afterbegin", mm("err", res.error.message)); } else viewThread(id);
+  }));
+}
+function editInPlace(table, pid, body, done){
+  const art = document.getElementById("p-" + pid); if (!art) return;
+  art.querySelector(".bd").outerHTML = `<form class="ed" style="display:grid;gap:8px"><textarea class="field" required maxlength="20000" style="min-height:100px">${esc(body)}</textarea><div class="recact"><button class="btn pri" type="submit">Save</button><button class="btn" type="button" data-x>Cancel</button></div></form>`;
+  const ac = art.querySelector(".ac"); if (ac) ac.hidden = true;
+  const f = art.querySelector("form.ed"); f.querySelector("[data-x]").addEventListener("click", done);
+  f.addEventListener("submit", async e => { e.preventDefault(); const {error} = await sb.from(table).update({body: f.querySelector("textarea").value.trim()}).eq("id", pid); if (error) art.insertAdjacentHTML("beforeend", mm("err", error.message)); else done(); });
+}
+
+/* ---------- account ---------- */
+function viewAccount(){
+  const p = profile, day = t => t ? new Date(t).toLocaleDateString(undefined, {dateStyle: "long"}) : "";
+  const status = p.role === "super_admin" ? "Super admin" : p.role === "moderator" ? "Moderator" : ({active: "Active", trialing: "Trial"}[p.subscription_status] || p.subscription_status);
+  $("#viewAcct").innerHTML = `<h3 style="margin:0">Your account</h3>
+    <div class="acct"><div><span>Email</span><b>${esc(session.user.email)}</b></div><div><span>Membership</span><b>${esc(status)}</b></div>${p.current_period_end ? `<div><span>${p.subscription_status === "canceled" ? "Access ends" : "Renews"}</span><b>${day(p.current_period_end)}</b></div>` : ""}<div><span>Dogs you've added</span><b>${[...dogs.values()].filter(d => d.by === uid()).length}</b></div></div>
+    <form id="dnForm" class="pick"><label class="f">Display name (shown on the board)<input class="field" name="dn" maxlength="40" required value="${esc(p.display_name)}"></label><div class="pickact"><button class="btn" type="submit">Save</button></div></form>
+    <div class="recact">${p.stripe_customer_id ? `<button class="btn" id="portalBtn" type="button">Manage billing (card, cancel)</button>` : ""}<button class="btn" id="pwBtn" type="button">Change password</button></div>
+    <div id="acMsg"></div>`;
+  $("#dnForm").addEventListener("submit", async e => { e.preventDefault(); const dn = e.target.dn.value.trim();
+    const {error} = await sb.from("profiles").update({display_name: dn}).eq("id", uid());
+    if (error){ $("#acMsg").innerHTML = mm("err", error.message); return; }
+    profile.display_name = dn; names.delete(uid()); $("#whoName").textContent = dn; $("#acMsg").innerHTML = mm("ok", "Saved."); });
+  $("#portalBtn")?.addEventListener("click", () => goStripe("billing-portal", $("#portalBtn"), $("#acMsg")));
+  $("#pwBtn").addEventListener("click", async () => { const {error} = await sb.auth.resetPasswordForEmail(session.user.email, {redirectTo: PAGE_URL}); $("#acMsg").innerHTML = error ? mm("err", error.message) : mm("ok", "We've emailed you a link to set a new password."); });
+}
+
+/* ---------- notes load when a dog is opened ---------- */
+const noteReq = new Map();
+function loadNote(d){
+  if (!noteReq.has(d.id)) noteReq.set(d.id, sb.from("dogs").select("note,source").eq("id", d.id).maybeSingle()
+    .then(({data, error}) => { if (error) throw error; d.note = data?.note || ""; d.source = data?.source || ""; })
+    .catch(() => { noteReq.delete(d.id); }));
+  noteReq.get(d.id).then(() => {
+    if (sel !== d.id || editing || d.source === undefined) return;
+    const n = $("#noteSlot"), s = $("#srcSlot");
+    if (n) n.innerHTML = d.note ? `<div class="note ${esc(d.status)}">${esc(d.note)}</div>` : "";
+    if (s) s.textContent = d.source || "—";
+  });
+}
+
+/* ---------- wiring ---------- */
+function renderAll(){ reset(); sortedC = null; renderStats(); renderList(); renderDatalists(); renderDetail(); if (!$("#viewPair").hidden) renderPair(); afterDetail(); }
+function afterDetail(){
+  const d = dogs.get(sel); if (!d) return;
+  if (d.source === undefined && !editing) loadNote(d);
+  if (!d.by) return;
+  loadNames([d.by]).then(() => { const el = $("#addedBy"); if (el) el.textContent = "Added by " + (d.by === uid() ? "you" : (names.get(d.by)?.display_name || "a member")); });
+}
+function open(id){ editing = false; sel = id; try { history.replaceState(null, "", "#" + id); } catch {} showTab("reg"); renderList(); renderDetail(); afterDetail(); $("#detail").scrollIntoView({block: "nearest"}); }
+function showTab(t){
+  for (const [k, tab, view] of [["reg", "#tabReg", "#viewReg"], ["pair", "#tabPair", "#viewPair"], ["board", "#tabBoard", "#viewBoard"], ["acct", "#tabAcct", "#viewAcct"]]){
+    $(tab).setAttribute("aria-selected", t === k); $(view).hidden = t !== k;
+  }
+  if (t === "pair") renderPair();
+}
+function route(){
+  if (!loaded) return;
+  const h = decodeURIComponent((location.hash || "").slice(1));
+  const [a, ...rest] = h.split("/"), arg = rest.join("/");
+  if (a === "board"){ showTab("board"); return viewBoard(); }
+  if (a === "thread"){ showTab("board"); return viewThread(arg); }
+  if (a === "new"){ showTab("board"); return viewNewThread(arg); }
+  if (a === "account"){ showTab("acct"); return viewAccount(); }
+  if (a === "pair"){
+    const [s, d] = (arg || "").split("~");
+    if (s && dogs.has(s)) $("#pSire").value = full(s);
+    if (d && dogs.has(d)) $("#pDam").value = full(d);
+    renderAll(); return showTab("pair");
+  }
+  if (a === "add"){ editing = "new"; showTab("reg"); renderAll(); return; }
+  if (h && h.includes("~")){ const [s, d] = h.split("~"); if (dogs.has(s) && dogs.has(d)){ $("#pSire").value = full(s); $("#pDam").value = full(d); renderAll(); return showTab("pair"); } }
+  editing = false;
+  if (h && dogs.has(h)) sel = h;
+  if (!sel || !dogs.has(sel)) sel = dogs.has("crenshaws-jeep") ? "crenshaws-jeep" : [...dogs.keys()][0] || null;
+  if (!pairPrefilled){ pairPrefilled = true; if (!$("#pSire").value && dogs.has("finleys-bo")) $("#pSire").value = full("finleys-bo"); if (!$("#pDam").value && dogs.has("honeybunch")) $("#pDam").value = full("honeybunch"); }
+  showTab("reg"); renderAll();
+}
+window.addEventListener("hashchange", () => { if (loaded && session && isMember(profile)) route(); });
+document.addEventListener("click", e => {
+  if (e.target.closest("a[href^='#']") && !e.target.closest("[data-id]")) return;
+  const t = e.target.closest("[data-id]");
+  if (t && !t.closest("form") || (t && t.closest("#similar"))){ e.preventDefault(); open(t.dataset.id); return; }
+  const pv = e.target.closest("[data-pv]");
+  if (pv){ pairView = pv.dataset.pv; renderPair(); return; }
+  const cg = e.target.closest("[data-cg]");
+  if (cg){ cardGen = +cg.dataset.cg; renderDetail(); afterDetail(); return; }
+  if (e.target.id === "pubBtn" || e.target.id === "shareBtn"){
+    const url = e.target.dataset.url, msg = $(e.target.id === "pubBtn" ? "#pubMsg" : "#shareMsg"); msg.hidden = false;
+    const show = copied => { msg.innerHTML = `${copied ? "Link copied." : "Copy this link:"} <input class="field" readonly value="${esc(url)}"> <span class="hint">This opens the free public pairing desk, which shows pedigrees and COI without notes or sources.</span>`; };
+    try { navigator.clipboard.writeText(url).then(() => show(true), () => show(false)); } catch { show(false); }
+    return;
+  }
+  const f = e.target.closest("[data-f]");
+  if (f){ filt = f.dataset.f; document.querySelectorAll("[data-f]").forEach(b => b.setAttribute("aria-pressed", b === f)); renderList(); return; }
+  if (e.target.id === "addBtn"){ editing = "new"; showTab("reg"); renderDetail(); }
+  else if (e.target.id === "cancelBtn"){ editing = false; renderDetail(); afterDetail(); }
+  else if (e.target.id === "editBtn"){ if (dogs.get(sel)?.by){ editing = "edit"; renderDetail(); } }
+  else if (e.target.id === "delBtn") del(e.target);
+  else if (e.target.id === "pairBtn"){ const d = dogs.get(sel); $(d.sex === "F" ? "#pDam" : "#pSire").value = full(d.id); showTab("pair"); }
+  else if (e.target.id === "tabReg"){ try { history.replaceState(null, "", "#" + (sel || "")); } catch {} showTab("reg"); }
+  else if (e.target.id === "tabPair") showTab("pair");
+  else if (e.target.id === "tabBoard") location.hash = "board";
+  else if (e.target.id === "tabAcct") location.hash = "account";
+});
+document.addEventListener("keydown", e => { if (e.key === "Enter"){ const t = e.target.closest?.("[data-id]"); if (t && !t.closest("form")) open(t.dataset.id); } });
+document.addEventListener("submit", e => { if (e.target.id === "dogForm") save(e); });
+$("#q").addEventListener("input", renderList);
+$("#pSire").addEventListener("input", renderPair); $("#pDam").addEventListener("input", renderPair);
+let pairPrefilled = false;
+$("#pairClear").addEventListener("click", () => { $("#pSire").value = ""; $("#pDam").value = ""; pairView = "ped"; pairPrefilled = true; renderPair(); $("#pSire").focus(); });
+refresh();
+
+})();
+</script>
+</body>
+</html>
